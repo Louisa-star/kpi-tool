@@ -349,6 +349,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
     <button class="tab-btn" onclick="switchPage('knowledge',this)">📚 KPI知识库</button>
     <button class="tab-btn" onclick="switchPage('data',this)" id="tab-data">📁 数据中心</button>
     <button class="tab-btn" onclick="switchPage('quote',this)" id="tab-quote">💰 报价引擎</button>
+    <button class="tab-btn" onclick="switchPage('products',this)" id="tab-products">🛍️ 平台产品库</button>
     <button class="tab-btn" onclick="switchPage('template',this)" id="tab-template">📄 模板管理</button>
     <button class="tab-btn" onclick="switchPage('admin',this)" id="tab-admin" style="display:none">🔐 权限管理</button>
   </div>
@@ -697,7 +698,61 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
   </div>
 </div>
 
-<!-- ===== P5: 权限管理（仅管理员） ===== -->
+<!-- ===== P5: 平台产品库 ===== -->
+<div class="page" id="page-products">
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>平台产品库
+      <span class="badge badge-blue" style="margin-left:8px;font-size:11px">2025年最新</span>
+      <span style="font-size:12px;color:var(--text2);margin-left:auto">报价与规划时参考各平台最新招募产品规格、要求与效果预期</span>
+    </div>
+    <!-- 平台切换 -->
+    <div class="platform-toggle" id="products-plt-toggle">
+      <button class="plt-btn xhs" onclick="switchProductsPlt('xhs',this)">🌸 小红书 · 蒲公英</button>
+      <button class="plt-btn dy off" onclick="switchProductsPlt('dy',this)">🎵 抖音 · 巨量星图</button>
+    </div>
+    <!-- 搜索/筛选栏 -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+      <input type="text" id="products-search" placeholder="🔍 搜索产品名称或关键词..." style="flex:1;min-width:200px;max-width:360px" oninput="renderProductCards()">
+      <select id="products-type-filter" onchange="renderProductCards()" style="min-width:140px">
+        <option value="">全部类型</option>
+        <option value="图文">图文笔记/软文</option>
+        <option value="视频">视频内容</option>
+        <option value="直播">直播合作</option>
+        <option value="组合">组合产品</option>
+        <option value="招募">招募任务</option>
+      </select>
+      <select id="products-goal-filter" onchange="renderProductCards()" style="min-width:140px">
+        <option value="">全部目标</option>
+        <option value="曝光">品牌曝光</option>
+        <option value="种草">内容种草</option>
+        <option value="转化">销售转化</option>
+        <option value="带货">直播带货</option>
+      </select>
+    </div>
+    <!-- 产品卡片区 -->
+    <div id="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px"></div>
+  </div>
+
+  <!-- 产品详情弹层 -->
+  <div id="product-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:16px;padding:32px;max-width:680px;width:92%;max-height:88vh;overflow-y:auto;position:relative">
+      <button onclick="document.getElementById('product-detail-overlay').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button>
+      <div id="product-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- 快速备注/导入到报价 -->
+  <div class="card" style="margin-top:0">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>使用说明</div>
+    <div style="font-size:13px;color:var(--text2);line-height:2">
+      💡 <strong>报价时参考：</strong>根据客户需求和目标，在此查阅对应平台产品的要求、最低预算和效果参考，再前往「报价引擎」进行具体计算。<br>
+      📋 <strong>规划时参考：</strong>方案策划阶段可结合产品特点（图文/视频/直播/招募）制定最优投放组合。<br>
+      🔄 <strong>数据更新：</strong>平台产品政策会定期调整，建议每季度对照官方文档更新本库内容。
+    </div>
+  </div>
+</div>
+
+<!-- ===== P6: 权限管理（仅管理员） ===== -->
 <div class="page" id="page-admin">
   <div class="card">
     <div class="card-title"><span class="dot" style="background:var(--xhs)"></span>账号管理</div>
@@ -779,9 +834,9 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 // 用户数据结构: { username, password, display, role, perms, status, applyDate, approver, approveDate }
 // status: 'approved'(已批准) | 'pending'(待审核) | 'rejected'(已拒绝)
 const DEFAULT_USERS = [
-  { username:'admin',   password:'admin123',  display:'超级管理员', role:'admin',   perms:['knowledge','data','quote','template','admin'], status:'approved' },
-  { username:'manager', password:'mgr123',    display:'运营经理',   role:'manager', perms:['knowledge','data','quote','template'], status:'approved' },
-  { username:'viewer',  password:'view123',   display:'只读用户',   role:'viewer',  perms:['knowledge'], status:'approved' },
+  { username:'admin',   password:'admin123',  display:'超级管理员', role:'admin',   perms:['home','knowledge','data','quote','products','template','admin'], status:'approved' },
+  { username:'manager', password:'mgr123',    display:'运营经理',   role:'manager', perms:['home','knowledge','data','quote','products','template'], status:'approved' },
+  { username:'viewer',  password:'view123',   display:'只读用户',   role:'viewer',  perms:['home','knowledge','products'], status:'approved' },
 ];
 
 function getUsers() {
@@ -845,8 +900,8 @@ function doRegister() {
 
   // 创建新用户(待审核状态)
   const rolePerms = {
-    'manager': ['knowledge','data','quote','template'],
-    'viewer': ['knowledge']
+    'manager': ['home','knowledge','data','quote','products','template'],
+    'viewer': ['home','knowledge','products']
   };
   const newUser = {
     username,
@@ -1236,6 +1291,7 @@ function initApp() {
   renderPlatformCompare();
   renderHealthPanel('xhs');
   renderHealthPanel('dy');
+  renderProductCards(); // 平台产品库
 }
 
 // ==================== 数据持久化 ====================
@@ -1438,49 +1494,50 @@ const CES_INFO = {
 const KPI_DATA = {
   xhs: {
     exposure: [
-      { id:'imp', name:'笔记曝光量', ref:'行业基准：腰部单篇 5-30万', threshold:'基础指标（无固定阈值）',
-        desc:'笔记被展示的总次数（含发现页、搜索页、关注页、话题页等所有场景入口）。',
+      { id:'imp', name:'笔记曝光量', ref:'素人/KOC 0.3-3万；腰部 5-30万；头部 50万+',
+        threshold:'基础指标（无固定阈值）',
+        desc:'笔记被展示的总次数（含发现页、搜索页、关注页、话题页等所有场景入口）。2025年小红书月活突破4.5亿，单篇优质内容曝光天花板更高。',
         logic:'取数来源：蒲公英达人后台「数据洞察」→笔记详情→展示量；聚光/灵犀投放后台。',
         factors:['粉丝量及活跃度','笔记发布时间段（晚8-10点最佳）','话题标签质量与热度','封面首图吸引力','发布后2小时初始互动速率（决定是否进更大推荐池）','小红书算法推荐池层级（同城→兴趣→热门）'],
         layer:'exposure' },
-      { id:'reach', name:'触达人数（去重）', ref:'通常为曝光量的60-80%',
+      { id:'reach', name:'触达人数（去重）', ref:'通常为曝光量的55-75%（2025年去重比例小幅下降）',
         desc:'去重后实际看到笔记的独立用户数。与曝光量区分：同一用户多次刷到只算1次触达。',
         logic:'取数：蒲公英后台→笔记详情→曝光人数；达人和品牌后台均可查。',
         factors:['账号粉丝画像重叠度','内容垂直度与标签精准度','平台分发策略（同质账号相互抑制）'],
         layer:'exposure' },
-      { id:'search_imp', name:'搜索曝光量', ref:'美妆品类搜索占比可达30-50%',
-        desc:'通过关键词搜索获得的曝光量。小红书"种草→搜索→购买"链路中最关键的中间节点。',
+      { id:'search_imp', name:'搜索曝光量', ref:'美妆/美食品类搜索占比可达35-55%（2025年搜索场景权重持续提升）',
+        desc:'通过关键词搜索获得的曝光量。小红书"种草→搜索→购买"链路中最关键的中间节点，2025年搜索场景流量占比持续提升，SEO布局价值更为凸显。',
         logic:'取数：聚光平台关键词报告；或第三方工具（千瓜/新红/飞瓜）的关键词监测功能。',
         factors:['标题关键词布局（前10字权重最高）','正文关键词密度（自然植入3-5个核心词）','品牌词及品类词搜索热度趋势'],
         layer:'exposure' },
-      { id:'home_show', name:'关注页展现量', ref:'占总曝光10-30%（高粉更高）',
+      { id:'home_show', name:'关注页展现量', ref:'占总曝光10-25%（高粉账号更高）',
         desc:'在关注该博主用户的关注页Feed中的展现次数，代表核心粉丝触达效率。',
         logic:'取数：蒲公英后台「流量来源」细分数据。',
         factors:['粉丝活跃度','发布时间与粉丝在线高峰匹配度'],
         layer:'exposure' },
     ],
     engage: [
-      { id:'like', name:'点赞量', ref:'点赞率参考：腰部1-5%',
+      { id:'like', name:'点赞量', ref:'点赞率参考：腰部1-4%（2025年平均略有下降）',
         desc:'用户主动双击/点赞的次数。算法分发核心正反馈信号之一，影响进入更大推荐池的速度。',
         logic:'取数：笔记详情页直接可见；蒲公英后台有精确时序数据。',
         factors:['内容情感共鸣强度','封面质量','博主粉丝粘性','发布时间','是否含互动引导'],
         layer:'engage' },
-      { id:'collect', name:'收藏量', ref:'收藏率：优质内容3-10%，工具型更高',
-        desc:'小红书最独特指标。收藏=「有用，之后要用」，是比点赞更强的购买意向信号，算法权重高于点赞。',
+      { id:'collect', name:'收藏量', ref:'收藏率：优质内容3-8%，工具型/攻略型可达10%+',
+        desc:'小红书最独特指标。收藏=「有用，之后要用」，是比点赞更强的购买意向信号，算法权重高于点赞。2025年平台对高收藏内容的分发奖励进一步加强。',
         logic:'取数：蒲公英后台笔记数据；收藏率=收藏/曝光。美妆攻略类收藏率可达8-15%。',
         factors:['内容实用性（攻略/教程/清单类显著更高）','干货密度（步骤清晰、结构化）','保存意愿触发设计（如"收藏备用""留着参考"）'],
         layer:'engage' },
-      { id:'comment', name:'评论量', ref:'评论率参考：0.2-2%',
+      { id:'comment', name:'评论量', ref:'评论率参考：0.2-1.5%（随账号体量增大而降低）',
         desc:'用户评论总数（含博主回复）。高评论量=话题热度+社区信任背书+潜在转化信号。',
         logic:'取数：蒲公英后台；关注评论质量（真实用户咨询、好评 vs 无效水评）。',
         factors:['内容话题性/争议性设计','互动引导钩子（"你们用的哪款？"）','博主回复率（高回复带动更多评论）','内容引发的情感共鸣强度'],
         layer:'engage' },
-      { id:'er', name:'综合互动率(ER)', ref:'素人8-20%，腰部3-8%，头部1-3%',
-        desc:'ER=(点赞+收藏+评论)/曝光量×100%。综合衡量内容质量的核心指标，粉丝越多ER越低（正常现象）。',
+      { id:'er', name:'综合互动率(ER)', ref:'素人/KOC：8-20%；腰部：2.5-7%；头部：1-2.5%（2025年基准整体有所下移）',
+        desc:'ER=(点赞+收藏+评论)/曝光量×100%。综合衡量内容质量的核心指标，粉丝越多ER越低（正常现象）。2025年随内容竞争加剧，全层级基准线较往年略有下移。',
         logic:'报价谈判中最常用的参考指标。建议按粉丝层级对比，避免跨层级横向比较。',
         factors:['粉丝量级（反向关系，粉丝越多ER基准越低）','内容类型匹配度','发布时间','互动设计','历史发布稳定性'],
         layer:'engage' },
-      { id:'share', name:'分享/转发量', ref:'分享率通常0.1-1%，爆款可达3%+',
+      { id:'share', name:'分享/转发量', ref:'分享率通常0.1-0.8%，爆款可达2%+',
         desc:'用户主动转发到私信/微信/群聊，是最强的口碑传播信号，可带来二次裂变曝光。',
         logic:'取数：蒲公英后台（需达人授权）；站外分享无法追踪，此为站内数据。',
         factors:['情感共鸣强度（笑/感动/引发共鸣）','实用信息密度','内容天然可传播性（送礼推荐/出行攻略等）'],
@@ -1492,32 +1549,32 @@ const KPI_DATA = {
         layer:'engage' },
     ],
     convert: [
-      { id:'cpe', name:'CPE（每次互动成本）', ref:'美妆0.3-2元，食品0.5-3元',
+      { id:'cpe', name:'CPE（每次互动成本）', ref:'美妆0.3-2元，食品0.5-2.5元（2025年因内容竞争加剧略有上涨）',
         desc:'CPE=报价/(点赞+收藏+评论)。衡量每次有效互动花了多少钱，是报价谈判的核心锚点。',
         logic:'CPE越低越好。建议按品类、粉丝层级建立基准线。历史数据中可统计分布区间。',
         factors:['报价高低','内容互动率','粉丝活跃度','内容类型（教程类CPE最低）'],
         layer:'convert' },
-      { id:'cpm', name:'CPM（千次曝光成本）', ref:'腰部20-80元，头部50-150元',
+      { id:'cpm', name:'CPM（千次曝光成本）', ref:'腰部25-90元，头部60-180元（2025年自然流量溢价持续走高）',
         desc:'CPM=报价/曝光量×1000。衡量曝光效率，以声量为目标时的核心指标。',
-        logic:'对比投流CPM（通常5-20元）评估自然流量溢价是否合理。',
+        logic:'对比投流CPM（通常8-25元）评估自然流量溢价是否合理。',
         factors:['粉丝量级','内容质量（高互动带来更多推荐池放量）','推荐池层级'],
         layer:'convert' },
-      { id:'search_lift', name:'品牌词搜索提升', ref:'优质投放可提升30-200%',
+      { id:'search_lift', name:'品牌词搜索提升', ref:'优质投放可提升30-200%（取决于投放规模与集中度）',
         desc:'投放后品牌关键词在小红书内搜索量的环比增幅。是品效合一的核心度量，影响后续自然流量。',
         logic:'取数：千瓜/飞瓜/新红等第三方监测工具；需设置投放前后对比周期（至少±7天）。',
         factors:['投放博主数量与体量','内容传播范围','品牌本身知名度基线','竞争品牌同期投放量'],
         layer:'convert' },
-      { id:'gmv', name:'GMV/直接销售转化', ref:'ROI参考：美妆1:3-8，食品1:2-5',
+      { id:'gmv', name:'GMV/直接销售转化', ref:'ROI参考：美妆1:3-8，食品1:2-5（视品类和博主带货能力差异大）',
         desc:'带货类内容的直接销售额。需博主开通小红书商品链接/小店或绑定第三方电商平台。',
         logic:'取数：商品橱窗数据/小红书小店后台；ROI=GMV/报价。注意归因窗口期（通常7-30天）。',
         factors:['品类适配性','价格带（100-500元客单最易转化）','商品详情页质量','优惠力度','博主历史带货信任度'],
         layer:'convert' },
-      { id:'cta_click', name:'外链/小程序点击量', ref:'点击率参考：0.5-3%',
+      { id:'cta_click', name:'外链/小程序点击量', ref:'点击率参考：0.5-3%（高信任博主可达5%+）',
         desc:'笔记中绑定的小程序/外链被点击次数，反映用户从"看"到"跳转"的行为转化。',
         logic:'取数：蒲公英或品牌自有监测链接（UTM参数追踪）；需提前设置追踪标签。',
         factors:['CTA设计显著性','落地页质量','优惠钩子','品类购买决策路径长短'],
         layer:'convert' },
-      { id:'cps_rate', name:'CPS/联盟佣金转化率', ref:'佣金比例通常5-20%',
+      { id:'cps_rate', name:'CPS/联盟佣金转化率', ref:'佣金比例通常5-20%，2025年蒲公英CPS合作门槛降低',
         desc:'通过蒲公英CPS合作模式，按实际成交额分佣。适合电商型品牌，降低固定费用风险。',
         logic:'取数：蒲公英达人合作后台→CPS数据。转化率=购买人数/点击人数。',
         factors:['商品价格竞争力','博主受众与商品匹配度','购物车转化路径顺畅度'],
@@ -1567,23 +1624,7 @@ const KPI_DATA = {
         factors:['商品价格竞争力','博主讲解说服力','直播优惠券设计','商品库存提示'],
         layer:'live' },
     ],
-    tech: [
-      { id:'xhs_fcp', name:'首屏加载时间(FCP)', ref:'≤1.5s为标准', threshold:'≤1.5s', isNew:true,
-        desc:'笔记/首页首次内容渲染时间。影响用户第一眼体验，超过2秒用户跳出率显著上升。',
-        logic:'取数：Chrome DevTools→Performance面板；或Web Vitals工具实测。',
-        factors:['网络环境（弱网场景需重点关注）','图片压缩质量','CDN分发效率','JS包体积'],
-        layer:'tech' },
-      { id:'xhs_fps', name:'瀑布流滑动帧率(FPS)', ref:'≥50fps为流畅标准', threshold:'≥50fps', isNew:true,
-        desc:'双列瀑布流滑动时的渲染帧率。FPS<30会明显感知到卡顿，影响用户浏览体验和内容曝光量。',
-        logic:'取数：Chrome Performance面板录制滑动操作；移动设备用Safari Timeline或Xcode Instruments。',
-        factors:['图片懒加载实现质量','列表虚拟化（仅渲染可视区）','GPU加速使用','无用重绘优化'],
-        layer:'tech' },
-      { id:'xhs_img_load', name:'笔记封面加载时间', ref:'≤0.8s为标准', threshold:'≤0.8s', isNew:true,
-        desc:'笔记封面图/视频首帧加载完成时间。直接影响封面点击率，慢加载=低点击=少曝光，形成恶性循环。',
-        logic:'取数：Network面板过滤image请求；WebPageTest多地区测速。',
-        factors:['图片压缩格式（WebP/AVIF更优）','预加载策略','CDN节点覆盖','图片尺寸合规'],
-        layer:'tech' },
-    ],
+
     ecomm: [
       { id:'xhs_recall_rate', name:'回搜率', ref:'美妆品类参考3-8%', threshold:'基础指标', isNew:true,
         formula:'看过内容后48h内搜索品牌/产品词的人数 ÷ 内容曝光人数',
@@ -1628,115 +1669,90 @@ const KPI_DATA = {
         factors:['支付方式完整性（微信支付宝花呗等）','优惠券使用流畅度','价格最终确认页设计','购买承诺感（保障标志）'],
         layer:'ecomm' },
     ],
-    adv: [
-      { id:'xhs_adv_cpm', name:'投放CPM', ref:'聚光/灵犀信息流：10-50元', threshold:'因目标类型而异', isNew:true,
-        formula:'花费 ÷ 曝光量 × 1000',
-        desc:'每千次广告曝光的花费。品牌曝光类投放的核心效率指标，CPM越低说明触达成本越高效。',
-        logic:'取数：聚光平台或灵犀平台广告后台→投放报表；注意区分信息流广告CPM vs 自然流量等效CPM。',
-        factors:['竞价出价策略','受众定向精准度','广告素材质量（高质量素材降低出价门槛）','投放时段','行业竞争热度'],
-        layer:'adv' },
-      { id:'xhs_adv_cpc', name:'投放CPC', ref:'美妆品类参考2-8元/次', threshold:'因品类而异', isNew:true,
-        formula:'花费 ÷ 点击次数',
-        desc:'每次广告点击的花费。以引流为目标的投放核心指标，配合落地页转化率可计算完整的用户获取成本。',
-        logic:'取数：聚光/灵犀后台→点击数据；CPC偏高通常需要优化创意CTR或调整受众定向。',
-        factors:['广告CTR（点击率）','出价竞争激烈程度','受众人群精准度','素材与落地页相关性'],
-        layer:'adv' },
-      { id:'xhs_adv_cpe', name:'投放CPE', ref:'美妆0.5-3元/次互动', threshold:'因品类而异', isNew:true,
-        formula:'花费 ÷ 互动次数',
-        desc:'每次广告互动（点赞/收藏/评论）的花费。种草类投放的核心效率指标，反映广告引发用户真实兴趣的成本。',
-        logic:'取数：聚光平台→互动数据；CPE是品牌对比不同博主/素材投放效率的标准化指标。',
-        factors:['广告内容质量与真实感','受众匹配精准度','出价策略','投放频次控制'],
-        layer:'adv' },
-      { id:'xhs_adv_roi', name:'投放ROI', ref:'美妆品类参考1:3-8', threshold:'≥3', isNew:true,
-        formula:'成交GMV ÷ 投放花费',
-        desc:'广告投放的直接投资回报率。是电商型投放（以成交为目标）的终极衡量指标，ROI>3通常被认为是健康的投放水位。',
-        logic:'取数：聚光/灵犀后台→GMV数据；注意归因窗口设置（通常7天点击+1天浏览），不同归因口径会影响ROI数值。',
-        factors:['商品价格竞争力','落地页转化率','投放人群精准度','大促节点加持','商品详情页质量'],
-        layer:'adv' },
-    ]
+    adv: []
   },
   dy: {
     exposure: [
-      { id:'play', name:'播放量（总）', ref:'腰部单条50-500万，头部500万+',
+      { id:'play', name:'播放量（总）', ref:'KOC/素人：1-20万；腰部：20-200万；头部：200万+（2025年腰部头部竞争加剧，素人内容爆发机会依然存在）',
         desc:'视频被播放的总次数（含完播和未完播），是抖音最基础的曝光量化指标。',
         logic:'取数：抖音创作者中心→内容管理→视频数据；巨量星图达人后台；巨量引擎广告后台。',
         factors:['账号权重（历史内容表现积累）','前3秒完播率（决定是否进入下一流量池）','完播率','投流加持','发布时间（晚7-11点）','话题标签与热点绑定'],
         layer:'exposure' },
-      { id:'avg_watch', name:'人均观看时长', ref:'参考：短视频>视频时长50%为优质',
+      { id:'avg_watch', name:'人均观看时长', ref:'参考：短视频>视频时长50%为优质（<1分钟视频参考70%+）',
         desc:'用户平均观看该视频的时长（秒）。是抖音算法衡量内容价值的核心信号，直接影响分发量级。',
         logic:'取数：创作者中心视频详情；结合视频总时长计算相对观看比例更有参考价值。',
         factors:['视频节奏感与信息密度','开头钩子设计','内容剪辑节奏','视频时长选择（15s/30s/60s/3分钟+）'],
         layer:'exposure' },
-      { id:'cover_click', name:'封面点击率(CTR)', ref:'优质内容5-15%',
+      { id:'cover_click', name:'封面点击率(CTR)', ref:'优质内容4-12%（2025年信息流竞争更激烈，点击率均值下滑）',
         desc:'视频在推荐流中被点击播放的比率=点击次数/展示次数。影响进入下一推荐池的概率。',
         logic:'取数：创作者中心→视频详情；投流广告后台有更详细的CTR数据。',
         factors:['封面设计吸引力（大字/高颜值/强冲突感）','标题文案钩子','账号历史CTR积累（影响平台预期）'],
         layer:'exposure' },
-      { id:'finish', name:'完播率', ref:'60s内视频>40%为优质，15s视频>70%',
+      { id:'finish', name:'完播率', ref:'60s内视频>35%为优质（2025年参考线），15s视频>65%',
         desc:'看完整个视频的用户比例。是抖音算法分发的最重要信号，完播率高=视频被大量推荐。',
         logic:'完播率=完整播放次数/总播放次数；取数：创作者中心；广告后台另有「观看25%/50%/75%/100%」节点数据。',
         factors:['视频节奏感','内容密度高','悬念/反转设计','时长控制（过长完播率下降显著）','开头前3秒留住用户'],
         layer:'exposure' },
-      { id:'hot_search', name:'热门/热榜曝光', ref:'上热门可额外带来10-100倍曝光',
+      { id:'hot_search', name:'热门/热榜曝光', ref:'上热门可额外带来10-100倍曝光（2025年热门门槛持续走高）',
         desc:'视频进入抖音热门推荐或相关话题榜单所带来的额外曝光。通常意味着自然流量爆发。',
         logic:'取数：创作者中心流量来源分析；热门流量来源占比异常高时可判断。',
         factors:['话题热度绑定','内容高度传播性','发布时机（热点事件期间）'],
         layer:'exposure' },
     ],
     engage: [
-      { id:'dy_like', name:'点赞量', ref:'点赞率参考3-8%（/播放量）',
+      { id:'dy_like', name:'点赞量', ref:'点赞率参考2-6%（/播放量，2025年均值有所下降）',
         desc:'用户双击或点赞的总次数，是最直接的内容认可信号，算法正反馈。',
         logic:'取数：创作者中心；点赞率=点赞/播放，按播放量基数计算。',
         factors:['内容情感共鸣（笑/感动/有用）','发布时间','算法推荐量级','互动引导设计'],
         layer:'engage' },
-      { id:'dy_comment', name:'评论量', ref:'评论率参考0.3-1.5%',
+      { id:'dy_comment', name:'评论量', ref:'评论率参考0.2-1.2%（高话题性内容可突破3%）',
         desc:'用户评论总数，重点关注正向评论比例和品牌相关讨论热度。',
         logic:'取数：创作者中心；关注评论情感、品牌提及频次，用于评估内容质量。',
         factors:['内容争议性/话题性','互动引导（"你们怎么看？评论区见"）','热门评论效应（优质置顶评论带动）'],
         layer:'engage' },
-      { id:'dy_share', name:'转发分享量', ref:'分享率参考0.5-3%，爆款可达5%+',
+      { id:'dy_share', name:'转发分享量', ref:'分享率参考0.3-2%，爆款内容可达5%+',
         desc:'用户主动转发至私信/群聊/站外，是抖音内容病毒传播的核心驱动力。',
         logic:'取数：创作者中心；分享量/播放量=分享率。爆款内容分享率可达5%+。',
         factors:['内容可传播性（笑点/感动/猎奇/共鸣）','社交话题性','是否适合发给特定对象（"这说的就是我"）'],
         layer:'engage' },
-      { id:'dy_collect', name:'收藏量', ref:'收藏率通常0.5-2%',
+      { id:'dy_collect', name:'收藏量', ref:'收藏率通常0.5-2%（教程/干货类更高）',
         desc:'用户添加到收藏夹，代表信息备用价值（教程/攻略/干货类较高）。',
         logic:'取数：创作者中心；收藏量较少被重视但对教程类内容很重要。',
         factors:['实用信息密度','内容类型（教程/攻略 > 娱乐/剧情）','保存意愿触发'],
         layer:'engage' },
-      { id:'dy_er', name:'综合互动率(ER)', ref:'头部1-3%，腰部3-8%（含分享）',
+      { id:'dy_er', name:'综合互动率(ER)', ref:'头部0.8-2%；腰部2-6%（含分享，2025年基准整体下移）',
         desc:'ER=(点赞+评论+分享+收藏)/播放量×100%。因播放基数大，抖音ER通常低于小红书。',
         logic:'按播放量计算ER，而非按粉丝数。需按层级建立基准，跨层级对比无意义。',
         factors:['播放量基数（反向关系）','内容质量','完播率','互动引导设计'],
         layer:'engage' },
-      { id:'dy_fans_new', name:'新增粉丝量', ref:'爆款可带来数千至数万粉',
+      { id:'dy_fans_new', name:'新增粉丝量', ref:'爆款可带来数千至数万粉；普通投放帖数百粉',
         desc:'视频发布后带来的净新增粉丝数。对品牌自营号极重要，是用户认可账号价值的强信号。',
         logic:'取数：创作者中心→粉丝数据→与视频发布时间节点对应。',
         factors:['内容持续输出价值感（用户愿意关注）','关注引导设计（"关注我，每天xxx"）','账号定位清晰度'],
         layer:'engage' },
     ],
     convert: [
-      { id:'dy_cpe', name:'CPE（每次互动成本）', ref:'美妆0.1-1元，食品0.2-1.5元',
+      { id:'dy_cpe', name:'CPE（每次互动成本）', ref:'美妆0.1-0.8元，食品0.2-1.2元（2025年因互动基数大，抖音CPE显著低于小红书）',
         desc:'CPE=报价/(点赞+评论+分享+收藏)。衡量互动获取效率，报价谈判的重要参考。',
         logic:'抖音因播放量大，互动绝对值高，CPE通常低于小红书。注意区分是否含投流费用。',
         factors:['报价','播放量','互动率','是否含达人费+投流费'],
         layer:'convert' },
-      { id:'dy_cpm', name:'CPM（千次播放成本）', ref:'腰部10-40元，头部30-100元',
+      { id:'dy_cpm', name:'CPM（千次播放成本）', ref:'腰部10-40元，头部35-100元（2025年自然内容CPM与2024基本持平）',
         desc:'CPM=报价/播放量×1000。抖音自然流量CPM通常低于小红书，因平台分发量级更大。',
         logic:'对比信息流投流CPM（通常5-20元）可判断自然流量溢价合理性。',
         factors:['播放量级','账号权重','完播率（高完播=更多自然分发）','是否含投流'],
         layer:'convert' },
-      { id:'dy_link', name:'商品点击/购物车转化', ref:'CVR参考1-5%（点击→购买）',
+      { id:'dy_link', name:'商品点击/购物车转化', ref:'CVR参考1-5%（点击→购买，高信任博主可达8%+）',
         desc:'橱窗商品/购物车点击及最终下单量。抖音电商核心转化指标，直播带货必选维度。',
         logic:'取数：巨量星图达人后台（达人提供）；或品牌小店后台按来源统计。',
         factors:['品类适配性（食品/美妆/家居转化好）','价格带竞争力','优惠券/秒杀力度','商品详情页质量','博主带货信任度积累'],
         layer:'convert' },
-      { id:'dy_gmv', name:'GMV/直播销售额', ref:'头部带货GMV场均百万级以上',
+      { id:'dy_gmv', name:'GMV/直播销售额', ref:'中腰部带货GMV场均10-100万；头部场均百万级以上',
         desc:'抖音短视频带货或直播的实际成交额。分为短视频带货（橱窗）和直播带货两种场景。',
         logic:'取数：抖音小店后台/巨量星图；ROI=GMV/总投入（达人费+投流费）。建议ROI>2。',
         factors:['博主粉丝信任度与带货能力','商品价格竞争力','直播节奏与话术','投流加持的流量质量'],
         layer:'convert' },
-      { id:'dy_cost_per_order', name:'CPO（每单获客成本）', ref:'参考行业均值，因品类差异大',
+      { id:'dy_cost_per_order', name:'CPO（每单获客成本）', ref:'参考行业均值，美妆CPO通常20-80元，因品类差异大',
         desc:'CPO=总投入/实际订单量。衡量整体投放效率，比CPE/CPM更贴近业务目标。',
         logic:'需整合达人费+投流费+运营成本；与品牌自身LTV（用户生命周期价值）对比判断是否合理。',
         factors:['品类客单价','用户复购率','转化路径链路长度','落地页转化率'],
@@ -1806,25 +1822,7 @@ const KPI_DATA = {
         factors:['投流精准度','达人选品能力','大促节点时机','商品折扣力度'],
         layer:'live' },
     ],
-    tech: [
-      { id:'dy_ttfb', name:'首字节时间(TTFB)', ref:'≤600ms为标准', threshold:'≤600ms', isNew:true,
-        desc:'从用户请求到服务器返回第一个字节的时间。反映服务器响应速度和接口性能。',
-        logic:'取数：浏览器开发者工具Network面板；或服务端APM监控工具（DataDog/Prometheus）。',
-        factors:['服务器地理位置','CDN配置','数据库查询性能','接口并发处理能力'],
-        layer:'tech' },
-      { id:'dy_error_rate', name:'接口/页面错误率', ref:'≤0.05%为健康标准', threshold:'≤0.05%', isNew:true,
-        desc:'接口调用或页面加载失败的比例。影响用户体验和算法评分，持续高错误率会限流。',
-        formula:'错误次数 / 总请求次数 × 100%',
-        logic:'取数：服务端错误日志；APM工具（如Sentry、Arms）实时监控。',
-        factors:['服务稳定性','流量峰值承载能力','依赖服务健康状态','发布变更质量'],
-        layer:'tech' },
-      { id:'dy_live_stream_ok', name:'直播推流成功率', ref:'≥99.9%为标准', threshold:'≥99.9%', isNew:true,
-        desc:'直播推流成功建立连接的比率。低于标准会导致直播中断，严重影响转化和用户体验。',
-        formula:'推流成功次数 / 总推流次数 × 100%',
-        logic:'取数：直播推流监控后台；或第三方推流SDK统计面板。',
-        factors:['主播网络环境稳定性','推流设备性能','CDN服务商质量','高并发时段资源调度'],
-        layer:'tech' },
-    ],
+
     ecomm: [
       { id:'dy_recall_rate', name:'品牌回搜率', ref:'美妆品类参考2-6%', threshold:'基础指标', isNew:true,
         formula:'看过视频/广告后搜索品牌词的用户 ÷ 曝光人群',
@@ -1863,63 +1861,302 @@ const KPI_DATA = {
         factors:['主播带货信任度积累','商品价格竞争力（vs竞品）','直播间氛围与观众黏性','福利/抽奖活动力度','商品选品与观众画像匹配度'],
         layer:'ecomm' },
     ],
-    qianchuan: [
-      { id:'dy_qc_gpm', name:'千次观看成交(GPM)', ref:'≥100元为优质标准', threshold:'≥100元', isNew:true,
-        formula:'GMV ÷ 播放量 × 1000',
-        desc:'千川投放核心效率指标，每千次视频/直播曝光带来的成交金额。GPM是抖音算法分配流量的重要参考，高GPM内容获得更多流量加权，形成正向飞轮效应。',
-        logic:'取数：千川广告后台→直播推广报表；GPM=GMV/播放量×1000。GPM偏低时需从转化率和客单价两个维度分析改善方向。',
-        factors:['客单价（高客单直接拉高GPM）','直播间/视频转化率','商品选品（爆款选品GPM显著更高）','主播话术转化能力','投放人群与商品匹配精准度'],
-        layer:'qianchuan' },
-      { id:'dy_qc_roi', name:'广告ROI', ref:'≥3为盈利标准', threshold:'≥3', isNew:true,
-        formula:'广告成交GMV ÷ 广告消耗',
-        desc:'千川广告投放的直接投资回报率，衡量广告花费带来的成交收益效率。是品牌判断千川投放是否持续扩量的核心决策指标。',
-        logic:'取数：千川广告后台→ROI列；注意区分「直接ROI」（仅计算广告带来的GMV）和「综合ROI」（含自然流量）的差异，两者口径不同。',
-        factors:['商品毛利率（决定ROI目标线）','转化率','客单价','投放人群质量','大促节点加持','商品竞争力'],
-        layer:'qianchuan' },
-      { id:'dy_qc_cpa', name:'CPA（每次转化成本）', ref:'因品类和转化目标差异大', threshold:'因目标而异', isNew:true,
-        formula:'总消耗 ÷ 转化次数（成交/表单/私信）',
-        desc:'千川投放中每获得一次有效转化的平均花费。转化目标可以是成交、表单填写或私信咨询，不同目标CPA参考值差异较大。',
-        logic:'取数：千川后台→转化目标列；若以成交为目标，CPA=客单价÷ROI，可用于交叉验证数据一致性。',
-        factors:['转化目标难易程度（成交>表单>点击）','出价策略（ocpm/ocpa模式）','素材创意质量','受众定向精准度','落地页转化率'],
-        layer:'qianchuan' },
-      { id:'dy_qc_cpm', name:'千川CPM', ref:'电商信息流5-25元', threshold:'因投放目标而异', isNew:true,
-        formula:'消耗 ÷ 曝光量 × 1000',
-        desc:'千川广告每千次曝光的花费。品牌曝光类投放的核心效率指标，电商类千川CPM通常低于品牌广告，因为系统针对转化目标优化人群。',
-        logic:'取数：千川后台→曝光数据；CPM偏高通常意味着定向过窄或出价过高，需调整人群包或使用「相似人群扩展」功能。',
-        factors:['广告竞价激烈程度','定向人群规模','广告素材质量分','投放时段','账户历史质量积累'],
-        layer:'qianchuan' },
-      { id:'dy_qc_cpc', name:'千川CPC', ref:'电商引流1-5元/次点击', threshold:'因品类而异', isNew:true,
-        formula:'消耗 ÷ 点击次数',
-        desc:'千川广告每次点击的花费。以引流为目标的投放核心指标，结合进店率和转化率可计算完整的用户获取链路成本。',
-        logic:'取数：千川后台→点击数据；CPC偏高时优先优化素材CTR，其次检查出价策略是否合理。',
-        factors:['广告CTR（点击率高则CPC下降）','竞价策略','受众精准度','素材吸引力','行业竞争热度'],
-        layer:'qianchuan' },
-      { id:'dy_qc_3s_rate', name:'3秒播放率', ref:'≥50%为优质', threshold:'≥50%', isNew:true,
-        formula:'播放≥3秒人数 ÷ 总播放',
-        desc:'视频在推荐流中播放超过3秒的用户比例，是千川投放中评估视频「开头留存力」的核心指标。3秒是用户决定是否继续看的关键节点，也是千川算法计费和优化的重要信号。',
-        logic:'取数：千川后台→视频数据→3秒完播率；3秒率偏低说明视频开头缺乏吸引力，需优化前3秒的钩子设计。',
-        factors:['视频前3秒的视觉冲击力','开头悬念/痛点/利益点设计','封面与内容的一致性（避免欺骗性封面）','目标人群与内容调性匹配度'],
-        layer:'qianchuan' },
-      { id:'dy_qc_finish_rate', name:'千川完播率', ref:'15s视频≥70%，60s视频≥40%', threshold:'≥40%', isNew:true,
-        formula:'完整播放人数 ÷ 总播放',
-        desc:'千川投放素材的视频完播率，直接影响广告质量分和分发成本。高完播率=视频质量好=系统降低出价成本=更多流量投入同样预算。',
-        logic:'取数：千川后台→视频数据；完播率与视频时长强相关，需按时长分组对比。同时关注25%/50%/75%/100%各节点的流失率，定位内容掉量节点。',
-        factors:['视频时长控制','内容节奏紧凑性','信息密度与价值感','悬念与反转设计','目标人群兴趣匹配度'],
-        layer:'qianchuan' },
-      { id:'dy_qc_click_cvr', name:'点击转化率', ref:'参考5-20%（/商品点击人数）', threshold:'≥5%', isNew:true,
-        formula:'成交人数 ÷ 商品点击人数',
-        desc:'点击商品后完成成交的比率，反映商品详情页对已产生购买兴趣用户的转化能力。低点击转化率通常意味着商品页与广告承诺不一致，或价格/详情不够有吸引力。',
-        logic:'取数：千川后台→商品数据；配合商品点击率(CTR)共同分析，CTR高但转化率低=商品页说服力不足；CTR低转化率高=定向精准但曝光不足。',
-        factors:['商品详情页完整度（主图/视频/参数/评价）','价格竞争力（与直播/大促价格对比）','优惠券和促销活动力度','商品真实性与描述一致性','物流速度与售后保障'],
-        layer:'qianchuan' },
-      { id:'dy_qc_new_cust_rate', name:'新客转化率', ref:'参考10-30%（/总成交数）', threshold:'基础指标', isNew:true,
-        formula:'新客成交数 ÷ 总成交数',
-        desc:'千川投放中首次购买用户占总成交用户的比率。新客转化率是品牌扩展用户基盘的能力指标，结合复购率评估投放的长期ROI价值。',
-        logic:'取数：千川后台→人群数据→新客/老客拆分；高新客率适合品牌扩量期，高复购率适合精细化运营期，两者目标不同。',
-        factors:['投放人群包设置（兴趣人群vs相似人群vs DMP人群）','内容对新用户的吸引力','品牌知名度基础','商品在陌生人群中的接受度','首购优惠力度'],
-        layer:'qianchuan' },
-    ]
+    qianchuan: []
   }
+};
+
+// ==================== 平台产品库数据 ====================
+const PLATFORM_PRODUCTS = {
+  xhs: [
+    // --------- 图文笔记 ---------
+    {
+      id: 'xhs_p1', name: '图文笔记合作（普通）', type: '图文', goal: '种草',
+      badge: '最常用', badgeColor: 'badge-xhs',
+      icon: '📝',
+      summary: '博主发布带商业标注的图文种草笔记，适合品牌认知度建立和产品种草。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '博主须在蒲公英平台完成达人认证（通常需粉丝≥1000）',
+        '内容须标注"合作"标签，不可私下交易规避平台',
+        '图片不少于3张，封面须符合小红书图片规格（3:4比例最优）',
+        '禁止虚假宣传、违禁词（如"最好""第一"等绝对化用语）',
+        '笔记发布后通常有15天禁止删除期（具体以合同为准）',
+        '内容须经品牌审核确认后方可发布',
+      ],
+      kpiRefs: [
+        { label: '曝光量', value: '视粉丝层级：KOC 0.3-3万，腰部 5-30万' },
+        { label: '互动率(ER)', value: 'KOC 8-20%；腰部 3-8%；头部 1-2.5%' },
+        { label: '收藏率', value: '优质攻略类 5-12%' },
+        { label: 'CPE', value: '美妆 0.3-2元/次互动' },
+        { label: '笔记长尾', value: '优质搜索词布局笔记可持续带量6-24个月' },
+      ],
+      budget: '单篇 ¥800 起（KOC），头部可达 ¥50万+',
+      tips: '图文笔记适合美妆/家居/母婴品类，收藏率高，长尾搜索效果突出。优先选择垂直博主，避免泛娱乐账号。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'xhs_p2', name: '视频笔记合作', type: '视频', goal: '种草',
+      badge: '增长趋势', badgeColor: 'badge-blue',
+      icon: '🎬',
+      summary: '博主发布竖屏/横屏视频种草笔记，2025年小红书视频权重持续提升，算法对视频的分发力度加强。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '视频时长建议60s-5分钟（超过1分钟完播率参考不同标准）',
+        '分辨率建议1080P及以上，竖屏（9:16）或方屏（1:1）',
+        '封面须设计封面标题，关键词布局在封面文字中',
+        '背景音乐须获得平台版权授权，不可使用侵权音乐',
+        '视频合作标注要求与图文相同',
+        '禁止过度剪辑展示效果（前后对比需真实）',
+      ],
+      kpiRefs: [
+        { label: '播放量', value: '腰部视频笔记 5-50万（高于同体量图文约1.5倍）' },
+        { label: '完播率', value: '60s内视频优质完播率 30-60%' },
+        { label: '互动率', value: '视频内容互动率通常略低于图文（-10-20%）' },
+        { label: '回搜率', value: '美妆品类视频种草回搜率可达3-8%' },
+      ],
+      budget: '视频制作及达人费通常高于同等图文合作 20-50%',
+      tips: '2025年视频笔记已占小红书全站曝光的重要份额，OOTD、美妆测评、生活方式品类视频转化优于图文。建议品牌同时布局图文+视频。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'xhs_p3', name: '优效模式合作', type: '图文', goal: '曝光',
+      badge: '流量保障', badgeColor: 'badge-green',
+      icon: '🚀',
+      summary: '品牌在蒲公英下单时选择"优效模式"，平台承诺在笔记发布后15天内助推曝光量达到保量标准。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '仅限蒲公英平台官方渠道下单，普通私下合作无法使用',
+        '保量起投金额通常需要达到一定门槛（建议确认最新标准）',
+        '内容须通过蒲公英审核才能触发保量机制',
+        '保量期内不可删帖，否则取消保量',
+        '博主内容质量须达到蒲公英评级B级及以上',
+      ],
+      kpiRefs: [
+        { label: '保量曝光', value: '平台承诺最低曝光，超出部分为额外收益' },
+        { label: '互动率', value: '与普通合作基本一致，不影响自然互动' },
+        { label: '适用场景', value: '新品上市、大促节点、KPI保量需求' },
+      ],
+      budget: '通常高于普通合作价10-30%，换取曝光量保障',
+      tips: '适合对曝光KPI有明确要求的品牌，尤其是新品上市期或大促节点。注意保量仅针对曝光，不保互动率。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'xhs_p4', name: '直播合作（品牌专场/联播）', type: '直播', goal: '带货',
+      badge: '转化型', badgeColor: 'badge-orange',
+      icon: '📡',
+      summary: '品牌与小红书博主合作直播，形式包括博主专场直播、品牌联播、直播+笔记组合等。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '直播博主须开通小红书直播权限及购物车功能',
+        '商品须上架小红书小店或绑定第三方商品（视平台政策）',
+        '直播前须提交商品白名单和脚本大纲',
+        '美妆/医疗类商品需提供相应资质证明',
+        '直播时间通常选择晚8-11点黄金时段',
+        '建议配合DOU+或直播投流提升自然流量',
+      ],
+      kpiRefs: [
+        { label: '观看人次', value: '腰部博主专场 1-10万人次' },
+        { label: '进店率', value: '直播间进店率参考 5-15%' },
+        { label: '直播转化率(CVR)', value: '优质专场 2-5%' },
+        { label: '直播互动率', value: '互动率>5%为优质直播' },
+        { label: 'GPM', value: '≥100元为优质参考标准' },
+      ],
+      budget: '腰部博主专场 ¥1-5万起（含商品成本），头部 ¥10万+',
+      tips: '小红书直播偏种草型，用户购买决策周期较长，适合美妆/家居/生活方式品类。成交可能有24-72小时延迟。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'xhs_p5', name: 'CPS联盟分佣合作', type: '组合', goal: '转化',
+      badge: '效果付费', badgeColor: 'badge-purple',
+      icon: '💸',
+      summary: '通过蒲公英CPS模式，品牌无需支付固定达人费，按实际成交额向博主支付佣金。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '品牌须开通小红书小店或完成电商账号绑定',
+        '商品须上架并通过审核',
+        '佣金比例通常设置为 5-20%（视品类而定）',
+        '博主需完成蒲公英CPS资质认证',
+        '美妆/食品类佣金相对较高，数码类较低',
+      ],
+      kpiRefs: [
+        { label: '佣金比例', value: '通常5-20%，2025年蒲公英CPS门槛降低' },
+        { label: 'ROI', value: '美妆品类 1:3-8（含达人费）' },
+        { label: '转化率', value: '成熟CPS博主商品点击转化率 2-8%' },
+      ],
+      budget: '无固定达人费，按成交额结算，适合预算弹性品牌',
+      tips: '适合有一定品牌认知度、商品竞争力强的品牌。对新品牌建议先做固定价格合作建立信任，再引入CPS模式。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'xhs_p6', name: '众测/批量招募合作', type: '招募', goal: '种草',
+      badge: '批量投放', badgeColor: 'badge-blue',
+      icon: '👥',
+      summary: '品牌在蒲公英发布招募需求，批量招募素人/KOC/KOL，快速铺量内容，提升搜索声量。',
+      platform: '小红书 · 蒲公英',
+      requirements: [
+        '设置参与门槛（粉丝量、内容类型、地域等）',
+        '每个需求条件最多80字，硬性要求需指令清晰',
+        '需设置报名时间段和总预算上限',
+        '达人报名后品牌审核、寄样/提供素材、达人创作',
+        '发布后须标注"合作"标签',
+        '建议同期配合聚光投流放大声量',
+      ],
+      kpiRefs: [
+        { label: '笔记数量', value: '单次活动可产出50-500+篇KOC内容' },
+        { label: '单篇成本', value: '素人/KOC 800-4000元/篇，性价比高' },
+        { label: '搜索词覆盖', value: '批量内容可快速提升品类关键词搜索占位' },
+        { label: '内容真实度', value: '众测内容口碑真实度高，用户信任感强' },
+      ],
+      budget: '单次活动建议 ¥5-50万，可分批投放',
+      tips: '适合新品上市初期快速铺量、提升搜索声量。注意控制内容质量，设置合理筛选标准，避免低质内容稀释品牌形象。',
+      updatedAt: '2025年Q1',
+    },
+  ],
+  dy: [
+    // --------- 抖音星图产品 ---------
+    {
+      id: 'dy_p1', name: '指派任务（一口价）', type: '视频', goal: '种草',
+      badge: '最常用', badgeColor: 'badge-xhs',
+      icon: '🎯',
+      summary: '品牌通过巨量星图直接邀约指定达人合作，按达人广场报价一口价结算，适合精准选人的定制种草。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '达人须完成巨量星图入驻认证，粉丝≥1万（或已开通直播购物车权限粉丝≥1000）',
+        '视频内须添加"广告"标签，合规标注商业内容',
+        '内容须包含品牌提供的核心信息点（产品名称/卖点/购买方式）',
+        '禁止虚假效果展示（如夸大减肥/美白效果等）',
+        '视频发布后48小时内不得删除（以合同约定为准）',
+        '品牌可选择是否授权达人作品用于投流推广',
+      ],
+      kpiRefs: [
+        { label: '播放量', value: 'KOC 1-20万；腰部 20-200万；头部 200万+' },
+        { label: '完播率', value: '60s内视频优质完播率 35%+ (2025)' },
+        { label: '互动率(ER)', value: '腰部 2-6%（/播放量）' },
+        { label: 'CPM', value: '腰部 10-40元/千次播放' },
+        { label: 'CPE', value: '美妆 0.1-0.8元/次互动' },
+      ],
+      budget: '单条 ¥300 起（KOC），头部可达 ¥50万+/条',
+      tips: '指派任务灵活度高，可精准控制达人选择。建议配合「视频推送至广告平台」授权，后续可二次利用素材投放千川。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'dy_p2', name: '招募任务（一口价）', type: '招募', goal: '种草',
+      badge: '批量高效', badgeColor: 'badge-green',
+      icon: '📢',
+      summary: '品牌发布招募任务，1K-500W粉丝达人可自主报名，品牌审核后合作。单次任务1万元起投，单个达人300元起。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '单次任务最低预算 ¥10,000，达人单条最低 ¥300',
+        '任务报名时间段建议10天以上，最长60天',
+        '达人报价可在星图广场定价的2折-100%范围内折扣',
+        '硬性要求每条不超过80字',
+        '任务图标1:1比例，任务头图2:1比例',
+        '「三品一械」（药品/医疗器械/特殊食品/化妆品）品牌不可使用招募任务',
+        '须明确是否需要达人广告授权',
+      ],
+      kpiRefs: [
+        { label: '达人数量', value: '单次任务可招募数十至数百个达人' },
+        { label: '单达人成本', value: '¥300-5000/条，性价比高于指派任务' },
+        { label: '总曝光', value: '10万元预算可撬动500-2000万次播放' },
+        { label: '适用达人', value: '1K-500W粉丝，中腰尾部达人为主' },
+      ],
+      budget: '单次任务 ¥1万起，建议 ¥3-10万/轮 效果更佳',
+      tips: '适合新品上市铺量、节日营销声量爆发。达人团模式（种草/带货/探店/话题）可进一步提升专业度。注意医疗类品牌限制。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'dy_p3', name: '招募任务（按效果结算）', type: '招募', goal: '转化',
+      badge: '效果付费', badgeColor: 'badge-purple',
+      icon: '📊',
+      summary: '品牌按视频效果指标（播放量/互动量）结算，降低固定费用风险，适合对ROI要求较高的客户。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '服务商执单+客户终审双重把控内容产出',
+        '效果目标需提前设定（播放量/互动量），低于目标不结算或部分结算',
+        '需通过服务商发单，不支持纯客户自助模式',
+        '内容审核标准与一口价模式相同',
+        '结算周期通常为视频发布后7-14天数据稳定后',
+      ],
+      kpiRefs: [
+        { label: '结算基准', value: '按约定播放量/互动量达标率计费' },
+        { label: '风险控制', value: '未达标内容不结算/部分结算，降低采购风险' },
+        { label: '适用场景', value: '效果类行业、对内容把控诉求强的品牌' },
+      ],
+      budget: '视效果目标而定，通常与一口价相当或略低',
+      tips: '适合内容质量要求高、KPI明确的品牌。需配合服务商进行项目管理，纯自助品牌操作难度较大。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'dy_p4', name: '直播带货合作（星图直播）', type: '直播', goal: '带货',
+      badge: '转化型', badgeColor: 'badge-orange',
+      icon: '🛒',
+      summary: '通过巨量星图与抖音主播/达人合作直播带货，分为专场直播和联播坑位两种形式。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '达人须开通抖音小店或橱窗功能',
+        '商品须提前上架并通过平台审核',
+        '美妆/食品等品类需提供资质文件',
+        '提前协商坑位费、佣金比例和上架时间',
+        '建议在直播前3-7天发布预热短视频',
+        '直播中须展示商品实物，不可纯图片展示',
+        '医疗类/处方药等禁止在直播中销售',
+      ],
+      kpiRefs: [
+        { label: '直播观看', value: '中腰部主播场均 1-10万人次' },
+        { label: '峰值在线', value: '优质专场峰值 5000+ 人' },
+        { label: '直播CVR', value: '优质带货直播 ≥2%' },
+        { label: 'GPM', value: '≥100元/千次曝光为优质标准' },
+        { label: 'ROI', value: '≥3倍为盈利标准' },
+      ],
+      budget: '坑位费 ¥5000-10万+，另加 10-30% 佣金',
+      tips: '抖音直播带货转化效率高，但需配合投流放量。头部达人坑位费高但转化确定性强；中腰部达人性价比高但需筛选带货能力。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'dy_p5', name: '种草达人团（服务商模式）', type: '招募', goal: '种草',
+      badge: '一站式', badgeColor: 'badge-blue',
+      icon: '🌱',
+      summary: '由服务商承包全流程，针对线上种草测评、新品发布蓄水需求，批量产出优质中腰部达人内容。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '需通过星图认证服务商发单',
+        '服务商提供：选人-建联-脚本-发布-投流全流程',
+        '品牌提供：产品素材、核心卖点、审核要求',
+        '服务费通常为达人费总额的10-15%',
+        '项目周期通常2-4周（含内容审核迭代）',
+      ],
+      kpiRefs: [
+        { label: '内容产出', value: '单次可产出30-200篇达人视频' },
+        { label: '总曝光', value: '取决于达人组合，10万预算参考500-3000万次' },
+        { label: '适用场景', value: '新品上市蓄水、节日营销、品类教育' },
+      ],
+      budget: '建议 ¥5-30万/轮，含服务费',
+      tips: '适合没有星图运营经验的品牌，或需要快速批量产出内容的节点。服务商资源质量参差不齐，建议提前考察服务商案例。',
+      updatedAt: '2025年Q1',
+    },
+    {
+      id: 'dy_p6', name: '探店达人团', type: '招募', goal: '转化',
+      badge: '本地商家', badgeColor: 'badge-orange',
+      icon: '📍',
+      summary: '线下餐饮/零售/服务类商家通过服务商招募达人进行线下到店探店，带动本地流量和到店转化。',
+      platform: '抖音 · 巨量星图',
+      requirements: [
+        '商家须开通抖音本地生活服务功能',
+        '提供达人探店接待安排（预约时间、专属待遇等）',
+        '内容须真实呈现门店环境和产品/服务',
+        '建议同时上架团购券或核销链接',
+        '探店内容适合在本地流量推送窗口发布',
+      ],
+      kpiRefs: [
+        { label: '到店转化', value: '优质探店内容到店率 3-8%（/视频播放用户）' },
+        { label: '券核销率', value: '配套团购券核销率参考 20-40%' },
+        { label: '本地播放占比', value: '探店内容本地用户观看占比通常 40-60%' },
+      ],
+      budget: '单个达人探店 ¥500-5000，含餐饮招待和达人费',
+      tips: '适合餐饮、美妆体验店、健身房等本地实体商家。需配合本地流量投放放大效果，单纯自然流量转化有限。',
+      updatedAt: '2025年Q1',
+    },
+  ]
 };
 
 // ==================== 大盘基准数据（分品类） ====================
@@ -1941,34 +2178,34 @@ let MARKET_UPDATE_LOG = [];
 let MARKET_DATA = {
   beauty: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'800-3000',      cpe:'0.3-1.0',  cpm:'20-50',  er:'10-25%', finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-20000',    cpe:'0.5-1.8',  cpm:'25-60',  er:'6-15%',  finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'20000-80000',   cpe:'0.8-2.5',  cpm:'40-100', er:'4-10%',  finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'80000-400000',  cpe:'1.5-5',    cpm:'70-200', er:'2-5%',   finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'400000+',       cpe:'3-10',     cpm:'120-250',er:'1-3.5%', finish:'-' },
+      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'1000-4000',      cpe:'0.3-1.0',  cpm:'20-55',  er:'10-22%', finish:'-' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'4000-25000',    cpe:'0.5-2.0',  cpm:'28-65',  er:'5-13%',  finish:'-' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'25000-100000',   cpe:'0.8-2.8',  cpm:'45-110', er:'3.5-9%',  finish:'-' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'100000-500000',  cpe:'1.8-6',    cpm:'80-220', er:'1.8-4.5%',   finish:'-' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'500000+',       cpe:'4-12',     cpm:'150-280',er:'1-3%', finish:'-' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'500-2500',      cpe:'0.15-0.7', cpm:'10-35',  er:'8-18%',  finish:'65-90%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-15000',    cpe:'0.25-1.2', cpm:'15-45',  er:'5-12%',  finish:'50-70%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'15000-60000',   cpe:'0.4-2',    cpm:'20-60',  er:'3-8%',   finish:'40-60%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'60000-300000',  cpe:'0.7-3.5',  cpm:'35-100', er:'1.5-5%',  finish:'35-55%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'300000+',       cpe:'1.5-6',    cpm:'50-150', er:'1-2.5%', finish:'30-50%' },
+      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'600-3000',      cpe:'0.12-0.6', cpm:'10-35',  er:'7-16%',  finish:'60-88%' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-18000',    cpe:'0.2-1.0', cpm:'15-45',  er:'4-10%',  finish:'48-68%' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'18000-70000',   cpe:'0.4-2',    cpm:'22-65',  er:'2.5-7%',   finish:'38-58%' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'70000-350000',  cpe:'0.8-4',  cpm:'38-110', er:'1.3-4.5%',  finish:'32-52%' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'350000+',       cpe:'2-7',    cpm:'55-160', er:'0.8-2.3%', finish:'28-48%' },
     ]
   },
   fashion: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'600-2500',      cpe:'0.25-0.9', cpm:'18-45',  er:'9-22%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-18000',    cpe:'0.4-1.6',  cpm:'22-55',  er:'5-13%',  finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'18000-70000',   cpe:'0.7-2.2',  cpm:'35-90',  er:'3.5-9%', finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'70000-350000',  cpe:'1.3-4.5',  cpm:'60-180', er:'1.8-4.5%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'350000+',       cpe:'2.5-9',    cpm:'100-230',er:'0.9-3%', finish:'-' },
+      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'800-3000',      cpe:'0.25-0.9', cpm:'18-48',  er:'8-20%',  finish:'-' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-20000',    cpe:'0.4-1.7',  cpm:'24-58',  er:'4.5-12%',  finish:'-' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'20000-80000',   cpe:'0.7-2.5',  cpm:'38-95',  er:'3-8%', finish:'-' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'80000-400000',  cpe:'1.5-5',  cpm:'65-200', er:'1.5-4%',finish:'-' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'400000+',       cpe:'3-10',    cpm:'120-250',er:'0.8-2.8%', finish:'-' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'400-2000',      cpe:'0.12-0.6', cpm:'9-30',   er:'7-16%',  finish:'62-88%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2000-13000',    cpe:'0.2-1.1',  cpm:'14-40',  er:'4.5-11%', finish:'48-68%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'13000-55000',   cpe:'0.35-1.8', cpm:'18-55',  er:'2.5-7%', finish:'38-58%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'55000-280000',  cpe:'0.6-3.2',  cpm:'30-90',  er:'1.3-4.5%',finish:'32-52%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'280000+',       cpe:'1.3-5.5',  cpm:'45-140', er:'0.9-2.3%',finish:'28-48%' },
+      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'500-2500',      cpe:'0.12-0.6', cpm:'9-30',   er:'6-15%',  finish:'60-86%' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-15000',    cpe:'0.2-1.1',  cpm:'14-42',  er:'4-10%', finish:'46-66%' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'15000-60000',   cpe:'0.35-1.8', cpm:'18-58',  er:'2.3-6.5%', finish:'36-56%' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'60000-300000',  cpe:'0.7-3.5',  cpm:'32-95',  er:'1.2-4%',finish:'30-50%' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'300000+',       cpe:'1.5-6',    cpm:'48-150', er:'0.8-2.2%',finish:'26-46%' },
     ]
   },
   digital: {
@@ -2255,6 +2492,7 @@ function switchPage(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'admin') renderUserList();
   if (name === 'data') { renderSavedDatasets(); renderMarketTable(); }
+  if (name === 'products') renderProductCards();
 }
 
 function switchSubTab(page, name, el) {
@@ -3138,6 +3376,136 @@ function saveAsTemplate() {
   alert('✅ 已保存为模板');
 }
 
+// ==================== 平台产品库 ====================
+let _currentProductsPlt = 'xhs';
+
+function switchProductsPlt(plt, btn) {
+  _currentProductsPlt = plt;
+  document.querySelectorAll('#products-plt-toggle .plt-btn').forEach(b => {
+    b.classList.add('off');
+  });
+  btn.classList.remove('off');
+  renderProductCards();
+}
+
+function renderProductCards() {
+  const plt = _currentProductsPlt;
+  const search = (document.getElementById('products-search')?.value || '').trim().toLowerCase();
+  const typeFilter = document.getElementById('products-type-filter')?.value || '';
+  const goalFilter = document.getElementById('products-goal-filter')?.value || '';
+
+  let products = (PLATFORM_PRODUCTS[plt] || []).filter(p => {
+    const matchSearch = !search ||
+      p.name.toLowerCase().includes(search) ||
+      p.summary.toLowerCase().includes(search) ||
+      (p.type||'').includes(search) ||
+      (p.goal||'').includes(search);
+    const matchType = !typeFilter || (p.type||'').includes(typeFilter);
+    const matchGoal = !goalFilter || (p.goal||'').includes(goalFilter);
+    return matchSearch && matchType && matchGoal;
+  });
+
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  if (!products.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:40px 0;font-size:14px">暂无匹配产品，尝试调整搜索条件</div>';
+    return;
+  }
+
+  grid.innerHTML = products.map(p => {
+    const kpiHtml = (p.kpiRefs||[]).slice(0,3).map(k =>
+      `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f5f5f5">
+        <span style="color:var(--text2)">${k.label}</span>
+        <span style="font-weight:600;color:var(--text);text-align:right;max-width:60%">${k.value}</span>
+       </div>`
+    ).join('');
+
+    return `
+    <div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.07);cursor:pointer;transition:box-shadow .2s;border:1.5px solid transparent" 
+         onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.13)';this.style.borderColor='var(--blue)'" 
+         onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,.07)';this.style.borderColor='transparent'"
+         onclick="showProductDetail('${p.id}','${plt}')">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
+        <span style="font-size:28px;line-height:1">${p.icon}</span>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">${p.name}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="badge ${p.badgeColor}">${p.badge}</span>
+            <span class="badge" style="background:#f0f0f2;color:#555">${p.type}</span>
+            <span class="badge" style="background:#f0f8e8;color:#2d7a1f">${p.goal}</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">${p.summary}</div>
+      <div style="background:#fafafa;border-radius:8px;padding:10px;margin-bottom:10px">${kpiHtml}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;color:var(--orange);font-weight:600">💰 ${p.budget.length>30?p.budget.slice(0,30)+'…':p.budget}</div>
+        <button class="btn btn-ghost btn-sm" style="font-size:11px">查看详情 →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showProductDetail(id, plt) {
+  const p = (PLATFORM_PRODUCTS[plt]||[]).find(x => x.id === id);
+  if (!p) return;
+
+  const kpiRows = (p.kpiRefs||[]).map(k =>
+    `<tr><td style="padding:8px 12px;color:var(--text2);font-size:13px;white-space:nowrap">${k.label}</td>
+     <td style="padding:8px 12px;font-size:13px;font-weight:600">${k.value}</td></tr>`
+  ).join('');
+
+  const reqItems = (p.requirements||[]).map(r =>
+    `<li style="font-size:13px;margin-bottom:6px;line-height:1.6">${r}</li>`
+  ).join('');
+
+  document.getElementById('product-detail-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <span style="font-size:40px">${p.icon}</span>
+      <div>
+        <div style="font-size:20px;font-weight:800;color:var(--text)">${p.name}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <span class="badge ${p.badgeColor}">${p.badge}</span>
+          <span class="badge" style="background:#f0f0f2;color:#555">${p.type}</span>
+          <span class="badge" style="background:#f0f8e8;color:#2d7a1f">${p.goal}</span>
+          <span class="badge" style="background:#e8f0ff;color:#0044cc">${p.platform}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="font-size:13px;color:var(--text);line-height:1.8">${p.summary}</div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text)">📋 合作要求与规范</div>
+      <ul style="padding-left:20px;margin:0">${reqItems}</ul>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--text)">📊 效果参考（大盘参考线）</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <tbody>${kpiRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="background:#fff8f0;border-radius:10px;padding:14px;margin-bottom:16px;border-left:4px solid var(--orange)">
+      <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:6px">💰 预算参考</div>
+      <div style="font-size:13px;line-height:1.8">${p.budget}</div>
+    </div>
+
+    <div style="background:#f0f8ff;border-radius:10px;padding:14px;border-left:4px solid var(--blue)">
+      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:6px">💡 使用建议</div>
+      <div style="font-size:13px;line-height:1.8">${p.tips}</div>
+    </div>
+
+    <div style="text-align:right;margin-top:16px;font-size:11px;color:var(--text2)">数据更新：${p.updatedAt} · 如遇平台政策变动请以官方为准</div>
+  `;
+  document.getElementById('product-detail-overlay').style.display = 'flex';
+}
+
 // ==================== 模板管理 ====================
 const FIELD_LABELS = { blogger:'博主名称', platform:'平台', tier:'层级', fans:'粉丝量', price:'报价(元)', er:'互动率(%)', cpe:'CPE(元)', cpm:'CPM(元)', stage:'阶段', plays:'预估曝光', eng:'预估互动', dy_finish:'完播率' };
 
@@ -3446,7 +3814,7 @@ function exportTemplateFile() {
 }
 
 // ==================== 权限管理 ====================
-const MODULE_LABELS = { knowledge:'KPI知识库', data:'数据中心', quote:'报价引擎', template:'模板管理', admin:'权限管理' };
+const MODULE_LABELS = { home:'首页', knowledge:'KPI知识库', data:'数据中心', quote:'报价引擎', products:'平台产品库', template:'模板管理', admin:'权限管理' };
 
 function renderUserList() {
   const users = getUsers();
