@@ -565,12 +565,14 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
       <div class="form-row">
         <div class="form-item"><label class="form-label">品类</label><select id="mkt-update-category"></select></div>
         <div class="form-item"><label class="form-label">平台</label><select id="mkt-platform"><option value="xhs">小红书</option><option value="dy">抖音</option></select></div>
-        <div class="form-item"><label class="form-label">粉丝层级</label><select id="mkt-tier"><option value="nano">1万以下</option><option value="micro">1-10万</option><option value="mid">10-50万</option><option value="macro">50-200万</option><option value="mega">200万+</option></select></div>
-        <div class="form-item"><label class="form-label">参考报价（元）</label><input type="text" id="mkt-price" placeholder="如 500-2000"></div>
+        <div class="form-item"><label class="form-label">粉丝层级</label><select id="mkt-tier"><option value="koc">千粉以下</option><option value="nano">1千-1万</option><option value="micro">1-10万</option><option value="mid">10-50万</option><option value="macro">50-200万</option><option value="mega">200万+</option></select></div>
+        <div class="form-item"><label class="form-label">图文报价（元）</label><input type="text" id="mkt-price-img" placeholder="如 100-500"></div>
+        <div class="form-item"><label class="form-label">视频报价（元）</label><input type="text" id="mkt-price-video" placeholder="如 200-1000"></div>
         <div class="form-item"><label class="form-label">CPE（元）</label><input type="text" id="mkt-cpe"></div>
         <div class="form-item"><label class="form-label">CPM（元）</label><input type="text" id="mkt-cpm"></div>
         <div class="form-item"><label class="form-label">平均互动率</label><input type="text" id="mkt-er" placeholder="如 3-8%"></div>
         <div class="form-item"><label class="form-label">完播率（抖音）</label><input type="text" id="mkt-finish" placeholder="如 35-55%"></div>
+        <div class="form-item"><label class="form-label">平台账号数</label><input type="text" id="mkt-accounts" placeholder="如约120万"></div>
       </div>
       <div class="form-item"><label class="form-label">更新备注</label><input type="text" id="mkt-note" placeholder="如：根据2026Q1最新调研调整"></div>
       <div class="form-item"><label class="form-label">维护工时（小时）</label><input type="number" id="mkt-hours" placeholder="如 0.5" step="0.1" min="0"></div>
@@ -2182,130 +2184,146 @@ let MARKET_UPDATE_LOG = [];
 let MARKET_DATA = {
   beauty: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'1000-4000',      cpe:'0.3-1.0',  cpm:'20-55',  er:'10-22%', finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'4000-25000',    cpe:'0.5-2.0',  cpm:'28-65',  er:'5-13%',  finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'25000-100000',   cpe:'0.8-2.8',  cpm:'45-110', er:'3.5-9%',  finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'100000-500000',  cpe:'1.8-6',    cpm:'80-220', er:'1.8-4.5%',   finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'500000+',       cpe:'4-12',     cpm:'150-280',er:'1-3%', finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'80-300',   price_video:'150-500',   cpe:'0.15-0.6',  cpm:'15-40',  er:'15-35%', finish:'-', total_accounts:'约850万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'300-1200', price_video:'500-2500',  cpe:'0.25-1.0',  cpm:'18-50',  er:'12-28%', finish:'-', total_accounts:'约420万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1200-8000', price_video:'2500-20000', cpe:'0.5-2.0',   cpm:'28-65',  er:'5-13%',  finish:'-', total_accounts:'约85万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'8000-35000', price_video:'20000-90000', cpe:'0.8-2.8',   cpm:'45-110', er:'3.5-9%',  finish:'-', total_accounts:'约12万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'35000-180000', price_video:'90000-450000', cpe:'1.8-6',     cpm:'80-220', er:'1.8-4.5%',finish:'-', total_accounts:'约2.8万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'180000+',  price_video:'450000+',    cpe:'4-12',      cpm:'150-280',er:'1-3%',   finish:'-', total_accounts:'约4500' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'600-3000',      cpe:'0.12-0.6', cpm:'10-35',  er:'7-16%',  finish:'60-88%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-18000',    cpe:'0.2-1.0', cpm:'15-45',  er:'4-10%',  finish:'48-68%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'18000-70000',   cpe:'0.4-2',    cpm:'22-65',  er:'2.5-7%',   finish:'38-58%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'70000-350000',  cpe:'0.8-4',  cpm:'38-110', er:'1.3-4.5%',  finish:'32-52%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'350000+',       cpe:'2-7',    cpm:'55-160', er:'0.8-2.3%', finish:'28-48%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'50-200',   price_video:'100-400',    cpe:'0.08-0.35', cpm:'8-28',   er:'10-25%', finish:'65-90%', total_accounts:'约1200万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'200-800',  price_video:'400-2000',   cpe:'0.12-0.55', cpm:'10-38',  er:'8-20%',  finish:'58-82%', total_accounts:'约580万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'800-5000', price_video:'2000-15000', cpe:'0.2-1.0',   cpm:'15-45',  er:'4-10%',  finish:'48-68%', total_accounts:'约95万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'5000-25000', price_video:'15000-60000', cpe:'0.4-2',     cpm:'22-65',  er:'2.5-7%',  finish:'38-58%', total_accounts:'约15万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'25000-120000', price_video:'60000-300000', cpe:'0.8-4',     cpm:'38-110', er:'1.3-4.5%',finish:'32-52%', total_accounts:'约3.2万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'120000+',  price_video:'300000+',    cpe:'2-7',       cpm:'55-160', er:'0.8-2.3%',finish:'28-48%', total_accounts:'约5200' },
     ]
   },
   fashion: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'800-3000',      cpe:'0.25-0.9', cpm:'18-48',  er:'8-20%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-20000',    cpe:'0.4-1.7',  cpm:'24-58',  er:'4.5-12%',  finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'20000-80000',   cpe:'0.7-2.5',  cpm:'38-95',  er:'3-8%', finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'80000-400000',  cpe:'1.5-5',  cpm:'65-200', er:'1.5-4%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'400000+',       cpe:'3-10',    cpm:'120-250',er:'0.8-2.8%', finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'60-250',   price_video:'120-450',    cpe:'0.12-0.5',  cpm:'12-35',  er:'12-32%', finish:'-', total_accounts:'约920万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'250-1000', price_video:'450-2200',   cpe:'0.2-0.85',  cpm:'15-45',  er:'10-25%', finish:'-', total_accounts:'约480万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1000-7000', price_video:'2200-18000', cpe:'0.4-1.7',   cpm:'24-58',  er:'4.5-12%',finish:'-', total_accounts:'约92万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'7000-30000', price_video:'18000-75000', cpe:'0.7-2.5',   cpm:'38-95',  er:'3-8%',   finish:'-', total_accounts:'约14万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'30000-150000', price_video:'75000-380000', cpe:'1.5-5',     cpm:'65-200', er:'1.5-4%', finish:'-', total_accounts:'约3.2万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'150000+',  price_video:'380000+',    cpe:'3-10',      cpm:'120-250',er:'0.8-2.8%',finish:'-', total_accounts:'约4800' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'500-2500',      cpe:'0.12-0.6', cpm:'9-30',   er:'6-15%',  finish:'60-86%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-15000',    cpe:'0.2-1.1',  cpm:'14-42',  er:'4-10%', finish:'46-66%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'15000-60000',   cpe:'0.35-1.8', cpm:'18-58',  er:'2.3-6.5%', finish:'36-56%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'60000-300000',  cpe:'0.7-3.5',  cpm:'32-95',  er:'1.2-4%',finish:'30-50%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'300000+',       cpe:'1.5-6',    cpm:'48-150', er:'0.8-2.2%',finish:'26-46%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'40-180',   price_video:'80-350',     cpe:'0.06-0.3',  cpm:'7-25',   er:'8-22%',  finish:'62-88%', total_accounts:'约1350万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'180-700',  price_video:'350-1800',   cpe:'0.1-0.5',   cpm:'9-35',   er:'6-18%',  finish:'55-80%', total_accounts:'约650万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'700-4500', price_video:'1800-13000', cpe:'0.2-1.1',   cpm:'14-42',  er:'4-10%',  finish:'46-66%', total_accounts:'约105万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'4500-22000', price_video:'13000-55000', cpe:'0.35-1.8',  cpm:'18-58',  er:'2.3-6.5%',finish:'36-56%', total_accounts:'约16万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'22000-110000', price_video:'55000-280000', cpe:'0.7-3.5',   cpm:'32-95',  er:'1.2-4%', finish:'30-50%', total_accounts:'约3.5万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'110000+',  price_video:'280000+',    cpe:'1.5-6',     cpm:'48-150', er:'0.8-2.2%',finish:'26-46%', total_accounts:'约5500' },
     ]
   },
   digital: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'1000-4000',     cpe:'0.5-1.5',  cpm:'30-60',  er:'7-18%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'4000-25000',    cpe:'0.8-2.5',  cpm:'40-70',  er:'4-11%',  finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'25000-100000',  cpe:'1.2-3.5',  cpm:'55-120', er:'2.5-7%', finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'100000-500000', cpe:'2-6',      cpm:'90-250', er:'1.5-3.5%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'500000+',       cpe:'4-12',     cpm:'150-300',er:'0.8-2.5%',finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'100-400',   price_video:'200-700',    cpe:'0.3-1.0',   cpm:'25-55',  er:'8-22%',  finish:'-', total_accounts:'约680万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'400-1800', price_video:'700-3500',   cpe:'0.5-1.5',   cpm:'30-60',  er:'7-18%',  finish:'-', total_accounts:'约320万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1800-12000', price_video:'3500-22000', cpe:'0.8-2.5',   cpm:'40-70',  er:'4-11%',  finish:'-', total_accounts:'约58万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'12000-50000', price_video:'22000-95000', cpe:'1.2-3.5',   cpm:'55-120', er:'2.5-7%', finish:'-', total_accounts:'约8.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'50000-250000', price_video:'95000-420000', cpe:'2-6',       cpm:'90-250', er:'1.5-3.5%',finish:'-', total_accounts:'约1.9万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'250000+',  price_video:'420000+',    cpe:'4-12',      cpm:'150-300',er:'0.8-2.5%',finish:'-', total_accounts:'约2800' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'700-3000',      cpe:'0.2-0.9',  cpm:'12-40',  er:'6-14%',  finish:'58-82%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-18000',    cpe:'0.3-1.5',  cpm:'18-50',  er:'3.5-9%',  finish:'45-65%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'18000-70000',   cpe:'0.5-2.2',  cpm:'22-65',  er:'2-6%',   finish:'35-55%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'70000-350000',  cpe:'0.9-4',    cpm:'35-95',  er:'1.2-4%',  finish:'30-50%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'350000+',       cpe:'2-7',      cpm:'50-140', er:'0.7-2%',  finish:'25-45%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'80-350',   price_video:'150-600',    cpe:'0.15-0.65', cpm:'10-35',  er:'6-16%',  finish:'55-80%', total_accounts:'约950万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'350-1500', price_video:'600-3200',   cpe:'0.2-0.9',   cpm:'12-40',  er:'6-14%',  finish:'58-82%', total_accounts:'约450万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1500-9500', price_video:'3200-16000', cpe:'0.3-1.5',   cpm:'18-50',  er:'3.5-9%',  finish:'45-65%', total_accounts:'约72万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'9500-42000', price_video:'16000-65000', cpe:'0.5-2.2',   cpm:'22-65',  er:'2-6%',   finish:'35-55%', total_accounts:'约11万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'42000-200000', price_video:'65000-320000', cpe:'0.9-4',     cpm:'35-95',  er:'1.2-4%',  finish:'30-50%', total_accounts:'约2.4万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'200000+',  price_video:'320000+',    cpe:'2-7',       cpm:'50-140', er:'0.7-2%',  finish:'25-45%', total_accounts:'约3800' },
     ]
   },
   food: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'700-2500',      cpe:'0.3-1.1',  cpm:'22-48',  er:'9-20%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-16000',    cpe:'0.5-1.7',  cpm:'28-58',  er:'5.5-13%', finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'16000-65000',   cpe:'0.8-2.3',  cpm:'42-95',  er:'3.5-8.5%',finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'65000-320000',  cpe:'1.5-4.8',  cpm:'75-190', er:'1.8-4.3%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'320000+',       cpe:'3-10.5',   cpm:'130-240',er:'1-3.2%', finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'50-200',   price_video:'100-380',    cpe:'0.18-0.7',  cpm:'18-42',  er:'12-28%', finish:'-', total_accounts:'约780万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'200-900',  price_video:'380-2000',   cpe:'0.3-1.1',   cpm:'22-48',  er:'9-20%',  finish:'-', total_accounts:'约380万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'900-6000', price_video:'2000-14000', cpe:'0.5-1.7',   cpm:'28-58',  er:'5.5-13%',finish:'-', total_accounts:'约72万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'6000-28000', price_video:'14000-58000', cpe:'0.8-2.3',   cpm:'42-95',  er:'3.5-8.5%',finish:'-', total_accounts:'约11万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'28000-140000', price_video:'58000-280000', cpe:'1.5-4.8',   cpm:'75-190', er:'1.8-4.3%',finish:'-', total_accounts:'约2.6万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'140000+',  price_video:'280000+',    cpe:'3-10.5',    cpm:'130-240',er:'1-3.2%', finish:'-', total_accounts:'约4200' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'450-2200',      cpe:'0.14-0.75',cpm:'11-38',  er:'7.5-17%', finish:'63-87%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2200-14000',    cpe:'0.23-1.15',cpm:'16-48',  er:'4-11%',  finish:'49-69%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'14000-58000',   cpe:'0.38-2',    cpm:'20-58',  er:'2.3-7%', finish:'38-58%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'58000-290000',  cpe:'0.7-3.6',  cpm:'32-88',  er:'1.3-4.3%',finish:'33-53%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'290000+',       cpe:'1.4-6.3',  cpm:'48-135', er:'0.85-2.2%',finish:'28-48%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'35-150',   price_video:'70-300',     cpe:'0.1-0.45',  cpm:'9-32',   er:'9-21%',  finish:'60-88%', total_accounts:'约1150万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'150-600',  price_video:'300-1600',   cpe:'0.14-0.75', cpm:'11-38',  er:'7.5-17%',finish:'63-87%', total_accounts:'约520万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'600-3800', price_video:'1600-12000', cpe:'0.23-1.15', cpm:'16-48',  er:'4-11%',  finish:'49-69%', total_accounts:'约82万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'3800-20000', price_video:'12000-50000', cpe:'0.38-2',    cpm:'20-58',  er:'2.3-7%', finish:'38-58%', total_accounts:'约12.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'20000-100000', price_video:'50000-250000', cpe:'0.7-3.6',   cpm:'32-88',  er:'1.3-4.3%',finish:'33-53%', total_accounts:'约2.9万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'100000+',  price_video:'250000+',    cpe:'1.4-6.3',   cpm:'48-135', er:'0.85-2.2%',finish:'28-48%', total_accounts:'约4800' },
     ]
   },
   baby: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'900-3500',      cpe:'0.4-1.3',  cpm:'25-55',  er:'11-23%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3500-22000',    cpe:'0.6-2',    cpm:'32-65',  er:'7-14.5%', finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'22000-85000',   cpe:'1-2.8',    cpm:'50-110', er:'4.5-9.5%',finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'85000-420000',  cpe:'2-5.5',    cpm:'80-210', er:'2-5%',   finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'420000+',       cpe:'3.5-11.5', cpm:'140-260',er:'1.2-3.8%',finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'70-280',   price_video:'140-500',    cpe:'0.25-0.9',  cpm:'20-48',  er:'14-30%', finish:'-', total_accounts:'约620万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'280-1200', price_video:'500-2800',   cpe:'0.4-1.3',   cpm:'25-55',  er:'11-23%', finish:'-', total_accounts:'约290万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1200-8000', price_video:'2800-18000', cpe:'0.6-2',     cpm:'32-65',  er:'7-14.5%',finish:'-', total_accounts:'约55万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'8000-35000', price_video:'18000-75000', cpe:'1-2.8',     cpm:'50-110', er:'4.5-9.5%',finish:'-', total_accounts:'约8.2万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'35000-170000', price_video:'75000-360000', cpe:'2-5.5',     cpm:'80-210', er:'2-5%',   finish:'-', total_accounts:'约1.9万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'170000+',  price_video:'360000+',    cpe:'3.5-11.5',  cpm:'140-260',er:'1.2-3.8%',finish:'-', total_accounts:'约3200' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'600-2800',      cpe:'0.18-0.85',cpm:'13-42',  er:'9-19%',  finish:'68-92%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2800-16500',    cpe:'0.28-1.25',cpm:'19-52',  er:'5.5-12.5%',finish:'52-72%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'16500-62000',   cpe:'0.45-2.15',cpm:'24-62',  er:'3-8%',   finish:'42-62%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'62000-310000',  cpe:'0.85-4',    cpm:'38-95',  er:'1.5-4.8%',finish:'36-56%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'310000+',       cpe:'1.8-7',    cpm:'55-145', er:'1-2.6%', finish:'30-50%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'50-220',   price_video:'100-420',    cpe:'0.12-0.55', cpm:'11-38',  er:'11-24%', finish:'65-92%', total_accounts:'约920万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'220-950',  price_video:'420-2400',   cpe:'0.18-0.85', cpm:'13-42',  er:'9-19%',  finish:'68-92%', total_accounts:'约420万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'950-6000', price_video:'2400-14000', cpe:'0.28-1.25', cpm:'19-52',  er:'5.5-12.5%',finish:'52-72%', total_accounts:'约65万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'6000-28000', price_video:'14000-55000', cpe:'0.45-2.15', cpm:'24-62',  er:'3-8%',   finish:'42-62%', total_accounts:'约9.8万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'28000-135000', price_video:'55000-280000', cpe:'0.85-4',    cpm:'38-95',  er:'1.5-4.8%',finish:'36-56%', total_accounts:'约2.2万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'135000+',  price_video:'280000+',    cpe:'1.8-7',     cpm:'55-145', er:'1-2.6%', finish:'30-50%', total_accounts:'约3800' },
     ]
   },
   home: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'800-3200',      cpe:'0.35-1.2', cpm:'23-52',  er:'10-21%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3200-20000',    cpe:'0.55-1.8',  cpm:'30-62',  er:'6-14%',   finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'20000-78000',   cpe:'0.9-2.5',  cpm:'48-105', er:'4-9%',   finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'78000-380000',  cpe:'1.8-5',    cpm:'78-200', er:'1.9-4.5%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'380000+',       cpe:'3.5-10.5', cpm:'135-245',er:'1.1-3.5%',finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'60-250',   price_video:'120-450',    cpe:'0.22-0.8',  cpm:'18-45',  er:'13-29%', finish:'-', total_accounts:'约720万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'250-1100', price_video:'450-2400',   cpe:'0.35-1.2',  cpm:'23-52',  er:'10-21%', finish:'-', total_accounts:'约340万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1100-7500', price_video:'2400-17000', cpe:'0.55-1.8',  cpm:'30-62',  er:'6-14%',  finish:'-', total_accounts:'约62万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'7500-32000', price_video:'17000-70000', cpe:'0.9-2.5',   cpm:'48-105', er:'4-9%',   finish:'-', total_accounts:'约9.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'32000-160000', price_video:'70000-340000', cpe:'1.8-5',     cpm:'78-200', er:'1.9-4.5%',finish:'-', total_accounts:'约2.2万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'160000+',  price_video:'340000+',    cpe:'3.5-10.5',  cpm:'135-245',er:'1.1-3.5%',finish:'-', total_accounts:'约3500' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'550-2600',      cpe:'0.16-0.8',  cpm:'12-40',  er:'8-18%',  finish:'66-90%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2600-15000',    cpe:'0.26-1.2',  cpm:'18-50',  er:'5-12%',  finish:'51-71%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'15000-60000',   cpe:'0.42-2.1',  cpm:'23-60',  er:'2.8-7.5%',finish:'40-60%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'60000-300000',  cpe:'0.8-3.8',  cpm:'36-92',  er:'1.4-4.5%',finish:'34-54%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'300000+',       cpe:'1.7-6.5',  cpm:'52-140', er:'0.95-2.4%',finish:'29-49%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'45-200',   price_video:'90-380',     cpe:'0.13-0.6',  cpm:'10-35',  er:'10-23%', finish:'63-90%', total_accounts:'约1050万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'200-850',  price_video:'380-2100',   cpe:'0.16-0.8',  cpm:'12-40',  er:'8-18%',  finish:'66-90%', total_accounts:'约480万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'850-5500', price_video:'2100-13000', cpe:'0.26-1.2',  cpm:'18-50',  er:'5-12%',  finish:'51-71%', total_accounts:'约75万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'5500-26000', price_video:'13000-52000', cpe:'0.42-2.1',  cpm:'23-60',  er:'2.8-7.5%',finish:'40-60%', total_accounts:'约11.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'26000-130000', price_video:'52000-270000', cpe:'0.8-3.8',   cpm:'36-92',  er:'1.4-4.5%',finish:'34-54%', total_accounts:'约2.6万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'130000+',  price_video:'270000+',    cpe:'1.7-6.5',   cpm:'52-140', er:'0.95-2.4%',finish:'29-49%', total_accounts:'约4200' },
     ]
   },
   auto: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'1200-5000',     cpe:'0.6-2',    cpm:'35-75',  er:'6-16%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'5000-30000',    cpe:'0.9-3',    cpm:'45-85',  er:'3.5-10%', finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'30000-120000',  cpe:'1.5-4.5',  cpm:'65-145', er:'2-6%',   finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'120000-600000', cpe:'3-7.5',    cpm:'110-280',er:'1.2-3.5%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'600000+',       cpe:'5-15',     cpm:'200-350',er:'0.7-2.5%',finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'150-600',   price_video:'300-1000',   cpe:'0.4-1.4',   cpm:'28-62',  er:'5-15%',  finish:'-', total_accounts:'约380万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'600-2800', price_video:'1000-5500',  cpe:'0.6-2',     cpm:'35-75',  er:'6-16%',  finish:'-', total_accounts:'约180万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'2800-18000', price_video:'5500-28000', cpe:'0.9-3',     cpm:'45-85',  er:'3.5-10%',finish:'-', total_accounts:'约32万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'18000-75000', price_video:'28000-115000', cpe:'1.5-4.5',   cpm:'65-145', er:'2-6%',   finish:'-', total_accounts:'约4.8万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'75000-380000', price_video:'115000-520000', cpe:'3-7.5',     cpm:'110-280',er:'1.2-3.5%',finish:'-', total_accounts:'约1.1万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'380000+',  price_video:'520000+',    cpe:'5-15',      cpm:'200-350',er:'0.7-2.5%',finish:'-', total_accounts:'约1800' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'800-4000',      cpe:'0.25-1.2',  cpm:'15-50',  er:'5-13%',  finish:'55-78%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'4000-24000',    cpe:'0.4-2',    cpm:'22-62',  er:'3-8%',   finish:'42-62%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'24000-95000',   cpe:'0.7-3.5',  cpm:'28-75',  er:'1.8-5.5%',finish:'32-52%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'95000-480000',  cpe:'1.4-6.5',  cpm:'45-115', er:'1-4%',   finish:'28-48%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'480000+',       cpe:'3-12',     cpm:'70-170', er:'0.6-2.2%',finish:'23-43%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'100-450',   price_video:'200-850',    cpe:'0.18-0.85', cpm:'12-42',  er:'4-12%',  finish:'52-78%', total_accounts:'约520万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'450-2200', price_video:'850-4500',   cpe:'0.25-1.2',  cpm:'15-50',  er:'5-13%',  finish:'55-78%', total_accounts:'约250万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'2200-14000', price_video:'4500-22000', cpe:'0.4-2',     cpm:'22-62',  er:'3-8%',   finish:'42-62%', total_accounts:'约42万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'14000-58000', price_video:'22000-78000', cpe:'0.7-3.5',   cpm:'28-75',  er:'1.8-5.5%',finish:'32-52%', total_accounts:'约6.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'58000-300000', price_video:'78000-400000', cpe:'1.4-6.5',   cpm:'45-115', er:'1-4%',   finish:'28-48%', total_accounts:'约1.5万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'300000+',  price_video:'400000+',    cpe:'3-12',      cpm:'70-170', er:'0.6-2.2%',finish:'23-43%', total_accounts:'约2400' },
     ]
   },
   travel: {
     xhs: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'700-3000',      cpe:'0.3-1.15', cpm:'21-50',  er:'9-19%',  finish:'-' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'3000-19000',    cpe:'0.5-1.8',  cpm:'27-58',  er:'5.5-12.5%',finish:'-' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'19000-75000',   cpe:'0.8-2.4',  cpm:'41-96',  er:'3.5-8.5%',finish:'-' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'75000-380000',  cpe:'1.6-5',    cpm:'73-195', er:'1.8-4.3%',finish:'-' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'380000+',       cpe:'3-11',     cpm:'130-245',er:'1-3.3%', finish:'-' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'50-220',   price_video:'100-400',    cpe:'0.2-0.8',   cpm:'16-42',  er:'10-24%', finish:'-', total_accounts:'约580万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'220-1000', price_video:'400-2200',   cpe:'0.3-1.15',  cpm:'21-50',  er:'9-19%',  finish:'-', total_accounts:'约280万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'1000-6500', price_video:'2200-16000', cpe:'0.5-1.8',   cpm:'27-58',  er:'5.5-12.5%',finish:'-', total_accounts:'约52万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'6500-28000', price_video:'16000-62000', cpe:'0.8-2.4',   cpm:'41-96',  er:'3.5-8.5%',finish:'-', total_accounts:'约8万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'28000-140000', price_video:'62000-320000', cpe:'1.6-5',     cpm:'73-195', er:'1.8-4.3%',finish:'-', total_accounts:'约1.8万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'140000+',  price_video:'320000+',    cpe:'3-11',      cpm:'130-245',er:'1-3.3%', finish:'-', total_accounts:'约2800' },
     ],
     dy: [
-      { tier:'nano',  label:'1万以下（素人/KOC）', fans:'<1万',   price:'500-2500',      cpe:'0.15-0.8',  cpm:'11-38',  er:'7.5-17%', finish:'64-88%' },
-      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price:'2500-15500',    cpe:'0.24-1.2',  cpm:'16-50',  er:'4.2-11%', finish:'50-70%' },
-      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price:'15500-62000',   cpe:'0.4-2.15', cpm:'21-59',  er:'2.4-7%', finish:'39-59%' },
-      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price:'62000-310000',  cpe:'0.75-3.8',  cpm:'34-90',  er:'1.35-4.4%',finish:'34-54%' },
-      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price:'310000+',       cpe:'1.6-6.8',  cpm:'50-138', er:'0.9-2.3%',finish:'29-49%' },
+      { tier:'koc',   label:'千粉以下（素人）',    fans:'<1000',  price_img:'40-180',   price_video:'80-350',     cpe:'0.1-0.5',   cpm:'9-32',   er:'8-20%',  finish:'60-90%', total_accounts:'约850万' },
+      { tier:'nano',  label:'1千-1万（KOC）',      fans:'1千-1万', price_img:'180-800',  price_video:'350-2000',   cpe:'0.15-0.8',  cpm:'11-38',  er:'7.5-17%',finish:'64-88%', total_accounts:'约380万' },
+      { tier:'micro', label:'1-10万（腰部以下）',  fans:'1-10万',  price_img:'800-5000', price_video:'2000-14000', cpe:'0.24-1.2',  cpm:'16-50',  er:'4.2-11%',finish:'50-70%', total_accounts:'约62万' },
+      { tier:'mid',   label:'10-50万（腰部）',     fans:'10-50万', price_img:'5000-22000', price_video:'14000-52000', cpe:'0.4-2.15',  cpm:'21-59',  er:'2.4-7%', finish:'39-59%', total_accounts:'约9.5万' },
+      { tier:'macro', label:'50-200万（头腰部）',  fans:'50-200万',price_img:'22000-110000', price_video:'52000-270000', cpe:'0.75-3.8',  cpm:'34-90',  er:'1.35-4.4%',finish:'34-54%', total_accounts:'约2.2万' },
+      { tier:'mega',  label:'200万+（头部）',      fans:'>200万',  price_img:'110000+',  price_video:'270000+',    cpe:'1.6-6.8',   cpm:'50-138', er:'0.9-2.3%',finish:'29-49%', total_accounts:'约3500' },
     ]
   }
 };
@@ -2873,9 +2891,9 @@ function renderMarketTable() {
     const el = document.getElementById(`${plt}-market-table`);
     if (!el) return;
     const data = getMarketData(currentCategory, plt);
-    el.innerHTML = `<tr><th>层级</th><th>粉丝量</th><th>参考报价（元）</th><th>CPE（元）</th><th>CPM（元）</th><th>平均互动率</th><th>完播率</th></tr>` +
+    el.innerHTML = `<tr><th>层级</th><th>粉丝量</th><th>图文报价</th><th>视频报价</th><th>CPE</th><th>CPM</th><th>互动率</th><th>完播率</th><th>平台账号数</th></tr>` +
       data.map(r => `<tr>
-        <td><b>${r.label}</b></td><td>${r.fans}</td><td>¥${r.price}</td><td>${r.cpe}</td><td>${r.cpm}</td><td>${r.er}</td><td>${r.finish||'-'}</td>
+        <td><b>${r.label}</b></td><td>${r.fans}</td><td>¥${r.price_img}</td><td>¥${r.price_video}</td><td>${r.cpe}</td><td>${r.cpm}</td><td>${r.er}</td><td>${r.finish||'-'}</td><td>${r.total_accounts||'-'}</td>
       </tr>`).join('');
   });
 }
@@ -2896,8 +2914,8 @@ function updateMarketData() {
   
   const row = MARKET_DATA[category][plt].find(r => r.tier === tier);
   if (row) {
-    const fields = ['price','cpe','cpm','er','finish'];
-    fields.forEach(f => { const v = document.getElementById('mkt-'+f)?.value; if(v) row[f] = v; });
+    const fields = ['price_img','price_video','cpe','cpm','er','finish','total_accounts'];
+    fields.forEach(f => { const v = document.getElementById('mkt-'+f.replace('_','-'))?.value; if(v) row[f] = v; });
   }
   
   persist('market', MARKET_DATA);
@@ -3182,6 +3200,7 @@ function importBloggersFromHistory() {
 
 // ==================== 估算函数 ====================
 function getTierForFans(fans) {
+  if (fans < 1000) return 'koc';
   if (fans < 10000) return 'nano';
   if (fans < 100000) return 'micro';
   if (fans < 500000) return 'mid';
@@ -3189,10 +3208,13 @@ function getTierForFans(fans) {
   return 'mega';
 }
 function getTierLabel(b) {
-  const labels = { nano:'素人/KOC', micro:'腰部以下', mid:'腰部', macro:'头腰部', mega:'头部' };
+  const labels = { koc:'素人', nano:'KOC', micro:'腰部以下', mid:'腰部', macro:'头腰部', mega:'头部' };
   return labels[getTierForFans(b.fans)] || '-';
 }
-function getMarketRow(b) { return MARKET_DATA[b.platform].find(r => r.tier === getTierForFans(b.fans)); }
+function getMarketRow(b) { 
+  const cat = PROJECT.category || 'beauty';
+  return MARKET_DATA[cat][b.platform].find(r => r.tier === getTierForFans(b.fans)); 
+}
 function parsePriceRange(str) {
   if (!str) return [1000,5000];
   const nums = str.replace(/[+,¥]/g,'').split('-').map(Number).filter(Boolean);
@@ -3202,7 +3224,9 @@ function getAdjFactor(b) { return Object.values(ADJUST[b.platform]).reduce((a,c)
 function getEstimatedPrice(b) {
   const row = getMarketRow(b);
   if (!row) return 5000;
-  const [lo,hi] = parsePriceRange(row.price);
+  // 根据内容类型选择图文或视频报价
+  const priceField = (b.ctype === 'video' || b.ctype === 'live') ? 'price_video' : 'price_img';
+  const [lo,hi] = parsePriceRange(row[priceField] || row.price_img);
   return Math.round((lo+hi)/2 * getAdjFactor(b));
 }
 function getEstimatedER(b) {
@@ -3359,13 +3383,14 @@ function calculateQuote() {
 
 function exportQuote() {
   if (!PROJECT.bloggers.length) { alert('暂无博主数据'); return; }
-  const rows = [['博主名','平台','层级','粉丝量','所属阶段','报价(元)','预估曝光/播放','预估互动','互动率(%)','CPE(元)','CPM(元)','修正系数']];
+  const rows = [['博主名','平台','层级','粉丝量','内容类型','所属阶段','报价(元)','预估曝光/播放','预估互动','互动率(%)','CPE(元)','CPM(元)','修正系数']];
   PROJECT.bloggers.forEach(b => {
     const er = b.er || getEstimatedER(b);
     const plays = Math.round(b.fans*(b.platform==='dy'?0.3:0.15));
     const eng = Math.round(plays*er/100);
     const price = estimatePrice(b);
-    rows.push([b.name||'未命名', b.platform==='xhs'?'小红书':'抖音', getTierLabel(b), b.fans, b.stage_idx>=0?PROJECT.stages[b.stage_idx]?.name:'-', price, plays, eng, er.toFixed(1), eng>0?(price/eng).toFixed(2):'-', plays>0?(price/plays*1000).toFixed(1):'-', getAdjFactor(b).toFixed(2)]);
+    const ctypeMap = { img:'图文', video:'视频', live:'直播', other:'其他' };
+    rows.push([b.name||'未命名', b.platform==='xhs'?'小红书':'抖音', getTierLabel(b), b.fans, ctypeMap[b.ctype]||'图文', b.stage_idx>=0?PROJECT.stages[b.stage_idx]?.name:'-', price, plays, eng, er.toFixed(1), eng>0?(price/eng).toFixed(2):'-', plays>0?(price/plays*1000).toFixed(1):'-', getAdjFactor(b).toFixed(2)]);
   });
   const ws = XLSX.utils.aoa_to_sheet(rows);
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '报价明细');
@@ -3513,7 +3538,7 @@ function showProductDetail(id, plt) {
 }
 
 // ==================== 模板管理 ====================
-const FIELD_LABELS = { blogger:'博主名称', platform:'平台', tier:'层级', fans:'粉丝量', price:'报价(元)', er:'互动率(%)', cpe:'CPE(元)', cpm:'CPM(元)', stage:'阶段', plays:'预估曝光', eng:'预估互动', dy_finish:'完播率' };
+const FIELD_LABELS = { blogger:'博主名称', platform:'平台', tier:'层级', fans:'粉丝量', ctype:'内容类型', price:'报价(元)', er:'互动率(%)', cpe:'CPE(元)', cpm:'CPM(元)', stage:'阶段', plays:'预估曝光', eng:'预估互动', dy_finish:'完播率' };
 
 function renderTemplateList() {
   TEMPLATES = load('templates', TEMPLATES);
