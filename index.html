@@ -441,14 +441,15 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
       <div class="card">
         <div class="card-title"><span class="dot" style="background:var(--xhs)"></span>输入互动数据</div>
         <div style="background:#fff4e5;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#b85c00">
-          <b>CES公式：</b>点赞 ×1 + 收藏 ×2 + 评论 ×3 + 转发 ×4<br>
-          转发权重最高（×4），说明小红书最鼓励口碑传播
+          <b>CES公式（2026年版）：</b>点赞 ×1 + 收藏 ×1 + 评论 ×4 + 转发 ×4 + 关注 ×8<br>
+          关注权重最高（×8），平台最看重长期粉丝价值；评论/转发其次（×4）
         </div>
         <div class="form-row" style="grid-template-columns:1fr 1fr">
           <div class="form-item"><label class="form-label">👍 点赞量 (×1)</label><input type="number" id="ces-like" placeholder="如 5000" oninput="calcCES()" min="0"></div>
-          <div class="form-item"><label class="form-label">⭐ 收藏量 (×2)</label><input type="number" id="ces-collect" placeholder="如 3000" oninput="calcCES()" min="0"></div>
-          <div class="form-item"><label class="form-label">💬 评论量 (×3)</label><input type="number" id="ces-comment" placeholder="如 1000" oninput="calcCES()" min="0"></div>
+          <div class="form-item"><label class="form-label">⭐ 收藏量 (×1)</label><input type="number" id="ces-collect" placeholder="如 3000" oninput="calcCES()" min="0"></div>
+          <div class="form-item"><label class="form-label">💬 评论量 (×4)</label><input type="number" id="ces-comment" placeholder="如 1000" oninput="calcCES()" min="0"></div>
           <div class="form-item"><label class="form-label">↗️ 转发量 (×4)</label><input type="number" id="ces-share" placeholder="如 500" oninput="calcCES()" min="0"></div>
+          <div class="form-item"><label class="form-label">➕ 新增关注 (×8)</label><input type="number" id="ces-follow" placeholder="如 200" oninput="calcCES()" min="0"></div>
         </div>
         <button class="btn btn-primary" onclick="calcCES()" style="width:100%">计算 CES 评分</button>
       </div>
@@ -1466,9 +1467,9 @@ function initThresholdBasis() {
 
 // ==================== 两平台差异对比数据 ====================
 const PLATFORM_COMPARE = [
-  { dim:'算法核心', xhs:'CES评分（收藏×2+评论×3+转发×4+点赞×1）', dy:'完播率 + 收藏率 + GPM', diff:'小红书重实用价值，抖音重即时转化' },
+  { dim:'算法核心', xhs:'CES评分（关注×8+评论×4+转发×4+点赞×1+收藏×1）', dy:'完播率 + 收藏率 + GPM', diff:'小红书重实用价值，抖音重即时转化' },
   { dim:'流量核心', xhs:'搜索流量占比≥65%，种草→搜索→购买链路', dy:'推荐+搜索双轮驱动，娱乐转化并行', diff:'小红书是决策引擎，抖音是娱乐+转化' },
-  { dim:'互动权重', xhs:'转发×4 > 评论×3 > 收藏×2 > 点赞×1', dy:'收藏 > 复访 > 铁粉 > 5秒完播', diff:'小红书重讨论深度，抖音重用户留存+转化' },
+  { dim:'互动权重', xhs:'关注×8 > 评论×4 = 转发×4 > 点赞×1 = 收藏×1', dy:'收藏 > 复访 > 铁粉 > 5秒完播', diff:'小红书最看重关注和评论，抖音重用户留存+转化' },
   { dim:'核心内容指标', xhs:'完读率≥40%、收藏率≥3%、停留时长≥10s', dy:'5秒完播率、GPM≥100元、铁粉占比≥20%', diff:'小红书重深度沉浸，抖音重效率转化' },
   { dim:'商业核心指标', xhs:'跳转量、收藏转化率、客单价100-500元', dy:'GPM、直播转化率≥2%、ROI≥1:3', diff:'小红书重种草蓄水，抖音重即时成交' },
   { dim:'用户增长', xhs:'转粉率≥1%，粉丝增长率≥5%（7/30日）', dy:'转粉率≥0.8%，粉丝增长率≥8%，铁粉≥20%', diff:'抖音铁粉机制更精细，小红书粉丝更精准' },
@@ -1478,9 +1479,9 @@ const PLATFORM_COMPARE = [
 
 // ==================== CES评分说明 ====================
 const CES_INFO = {
-  formula: '点赞 ×1 + 收藏 ×2 + 评论 ×3 + 转发 ×4',
+  formula: '点赞 ×1 + 收藏 ×1 + 评论 ×4 + 转发 ×4 + 关注 ×8',
   threshold: '≥1000 分为优质内容，可进入更大流量池',
-  note: 'CES是小红书内容质量分的核心计算方式，高分内容将被推荐至更多用户。转发权重最高（×4）说明小红书最鼓励口碑传播。',
+  note: 'CES是小红书内容质量分的核心计算方式，高分内容将被推荐至更多用户。关注权重最高（×8），说明平台最看重长期粉丝价值；评论/转发其次（×4）；点赞/收藏为基础分（×1）。',
   platform: 'xhs',
   tiers: [
     { label:'精品内容', min:5000, color:'#ff2442' },
@@ -1496,7 +1497,7 @@ const KPI_DATA = {
     exposure: [
       { id:'imp', name:'笔记曝光量', ref:'素人/KOC 0.3-3万；腰部 5-30万；头部 50万+',
         threshold:'基础指标（无固定阈值）',
-        desc:'笔记被展示的总次数（含发现页、搜索页、关注页、话题页等所有场景入口）。2026年小红书月活用户约3.3亿+（官方数据），算法升级至第5代星云5.0，注重"深层语义理解+信任分值"双轮驱动，优质内容曝光天花板持续提升。',
+        desc:'笔记被展示的总次数（含发现页、搜索页、关注页、话题页等所有场景入口）。2025年小红书月活用户约3亿（官方数据），算法引入NoteLLM语义匹配+SSD平衡分发机制，优质内容曝光天花板持续提升。',
         logic:'取数来源：蒲公英达人后台「数据洞察」→笔记详情→展示量；聚光/灵犀投放后台。',
         factors:['粉丝量及活跃度','笔记发布时间段（晚8-10点最佳）','话题标签质量与热度','封面首图吸引力','发布后2小时初始互动速率（决定是否进更大推荐池）','小红书算法推荐池层级（同城→兴趣→热门）'],
         layer:'exposure' },
@@ -1574,7 +1575,7 @@ const KPI_DATA = {
         logic:'取数：蒲公英或品牌自有监测链接（UTM参数追踪）；需提前设置追踪标签。',
         factors:['CTA设计显著性','落地页质量','优惠钩子','品类购买决策路径长短'],
         layer:'convert' },
-      { id:'cps_rate', name:'CPS/联盟佣金转化率', ref:'佣金比例通常5-20%，2026年蒲公英CPS入驻门槛已调整至粉丝≥5000',
+      { id:'cps_rate', name:'CPS/联盟佣金转化率', ref:'佣金比例通常5-20%，蒲公英官方入驻门槛：粉丝≥1000',
         desc:'通过蒲公英CPS合作模式，按实际成交额分佣。适合电商型品牌，降低固定费用风险。',
         logic:'取数：蒲公英达人合作后台→CPS数据。转化率=购买人数/点击人数。',
         factors:['商品价格竞争力','博主受众与商品匹配度','购物车转化路径顺畅度'],
@@ -1876,7 +1877,7 @@ const PLATFORM_PRODUCTS = {
       summary: '博主发布带商业标注的图文种草笔记，适合品牌认知度建立和产品种草。',
       platform: '小红书 · 蒲公英',
       requirements: [
-        '博主须在蒲公英平台完成达人认证（2026年门槛：粉丝≥5000，近半年≥10篇阅读量≥2000的笔记，无违规记录）',
+        '博主须在蒲公英平台完成达人认证（门槛：粉丝≥1000、已实名认证、年龄≥18岁、近30天原创笔记≥10篇、无违规记录）',
         '内容须标注"合作"标签，不可私下交易规避平台',
         '图片不少于3张，封面须符合小红书图片规格（3:4比例最优）',
         '禁止虚假宣传、违禁词（如"最好""第一"等绝对化用语）',
@@ -1979,7 +1980,7 @@ const PLATFORM_PRODUCTS = {
         '美妆/食品类佣金相对较高，数码类较低',
       ],
       kpiRefs: [
-        { label: '佣金比例', value: '通常5-20%，2026年蒲公英CPS入驻门槛调整为粉丝≥5000' },
+        { label: '佣金比例', value: '通常5-20%，蒲公英入驻门槛：粉丝≥1000（官方要求）' },
         { label: 'ROI', value: '美妆品类 1:3-8（含达人费）' },
         { label: '转化率', value: '成熟CPS博主商品点击转化率 2-8%' },
       ],
@@ -2559,7 +2560,8 @@ function calcCES() {
   const collect = parseFloat(document.getElementById('ces-collect')?.value)||0;
   const comment = parseFloat(document.getElementById('ces-comment')?.value)||0;
   const share   = parseFloat(document.getElementById('ces-share')?.value)||0;
-  const ces = like*1 + collect*2 + comment*3 + share*4;
+  const follow  = parseFloat(document.getElementById('ces-follow')?.value)||0;
+  const ces = like*1 + collect*1 + comment*4 + share*4 + follow*8;
   const tier = ces>=5000?'精品内容':ces>=1000?'优质内容':ces>=300?'合格内容':'待优化';
   const colors = {'精品内容':'#ff2442','优质内容':'#ff9500','合格内容':'#34c759','待优化':'#86868b'};
   const el = document.getElementById('ces-result');
@@ -2573,9 +2575,10 @@ function calcCES() {
     <div style="font-size:12px;color:var(--text2);background:var(--bg);border-radius:8px;padding:10px 14px;margin-top:8px;line-height:1.8">
       <b>计算明细：</b><br>
       点赞 ${like.toLocaleString()} × 1 = <b>${(like*1).toLocaleString()}</b><br>
-      收藏 ${collect.toLocaleString()} × 2 = <b>${(collect*2).toLocaleString()}</b><br>
-      评论 ${comment.toLocaleString()} × 3 = <b>${(comment*3).toLocaleString()}</b><br>
+      收藏 ${collect.toLocaleString()} × 1 = <b>${(collect*1).toLocaleString()}</b><br>
+      评论 ${comment.toLocaleString()} × 4 = <b>${(comment*4).toLocaleString()}</b><br>
       转发 ${share.toLocaleString()} × 4 = <b>${(share*4).toLocaleString()}</b><br>
+      新增关注 ${follow.toLocaleString()} × 8 = <b>${(follow*8).toLocaleString()}</b><br>
       <b>合计：${ces.toLocaleString()}</b>
     </div>
     <div style="margin-top:10px">
@@ -3668,7 +3671,7 @@ function exportTemplateAsExcel(tplId) {
   // 公式说明页
   const formulaRows = [
     ['指标', '计算公式', '说明'],
-    ['CES评分', '点赞×1 + 收藏×2 + 评论×3 + 分享×4', '小红书内容质量分'],
+    ['CES评分', '点赞×1 + 收藏×1 + 评论×4 + 转发×4 + 关注×8', '小红书内容质量分'],
     ['互动率(ER)', '(点赞+收藏+评论) / 曝光量 × 100%', '综合互动效率'],
     ['CPE', '报价 / (点赞+收藏+评论)', '单次互动成本'],
     ['CPM', '报价 / 曝光量 × 1000', '千次曝光成本'],
